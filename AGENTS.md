@@ -47,7 +47,7 @@ bun run build           # packages/web/dist/client — never bare `bun build`
 
 - **Swift**: tabs, Swift 6 strict concurrency with no warnings. UI state lives in `Store` (`@MainActor @Observable`); `SnatchCore` types are `Sendable`. Child processes always go through `ChildProcess` (never Foundation `Process` for yt-dlp) so a stop also kills the ffmpeg it started.
 - **Tools are downloaded, not bundled, and only after the user agrees**: the app stays small and yt-dlp can be replaced daily; a bundled binary inside a signed `.app` could not. Never download a tool without its install prompt. New tools need a checksum source; when upstream publishes none, pin the URL and SHA-256 together in `Tools.swift`.
-- **Web**: Biome owns formatting (tabs, width 100, double quotes). Components must render without `window`/`document` (prerender); touch them only in effects and handlers. Browser-exposed env vars use the `VITE_` prefix (`VITE_SITE_URL`, `VITE_AD_URL`, `VITE_CLARITY_ID`, `VITE_SENTRY_DSN`; see `.env.example`). New copy goes into `en.ts` first; every other locale must match its shape.
+- **Web**: Biome owns formatting (tabs, width 100, double quotes). Components must render without `window`/`document` (prerender); touch them only in effects and handlers. Browser-exposed env vars use the `VITE_` prefix (`VITE_SITE_URL`, `VITE_CLARITY_ID`, `VITE_SENTRY_DSN`; see `.env.example`). New copy goes into `en.ts` first; every other locale must match its shape.
 - **Clean cutover**: delete old paths; no shims, dead code or commented-out blocks.
 - Bun version is pinned in `packageManager`, `.bun-version` (CI asserts they match); `bun.lock` is committed and installs are `--frozen-lockfile`.
 
