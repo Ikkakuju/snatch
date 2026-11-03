@@ -1,0 +1,38 @@
+name: macOS app
+on:
+  pull_request:
+    paths: [macos/**, .github/workflows/macos.yml]
+  push:
+    branches: [main]
+    paths: [macos/**, .github/workflows/macos.yml]
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  # GitHub-hosted: the omarchy runner is Linux and cannot build a SwiftUI app.
+  test:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: swift test
+        working-directory: macos
+
+  # A `v1.2.3` tag builds Snatch.dmg and publishes it as that release. The asset
+  # name carries no version so the website can always link to
+  # releases/latest/download/Snatch.dmg.
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: macos-15
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: VERSION="${GITHUB_REF_NAME#v}" macos/scripts/bundle.sh
+      - run: gh release create "$GITHUB_REF_NAME" macos/dist/Snatch.dmg --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

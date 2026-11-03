@@ -1,0 +1,23 @@
+# Workers Static Assets headers. HTML keeps the default
+# `max-age=0, must-revalidate` so a deploy is picked up immediately; hashed
+# files are content-addressed and can be cached forever.
+/*
+	X-Content-Type-Options: nosniff
+	X-Frame-Options: DENY
+	Referrer-Policy: no-referrer
+	Strict-Transport-Security: max-age=15552000
+	Cross-Origin-Opener-Policy: same-origin
+/assets/*
+	Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+	Cache-Control: public, max-age=31536000, immutable
+/logo.svg
+	Cache-Control: public, max-age=86400
+/logo192.png
+	Cache-Control: public, max-age=86400
+/logo512.png
+	Cache-Control: public, max-age=86400
+/og.png
+	Cache-Control: public, max-age=86400
+/manifest.json
+	Cache-Control: public, max-age=86400
