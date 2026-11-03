@@ -7,8 +7,6 @@ interface ImportMetaEnv {
 	readonly VITE_SITE_URL?: string;
 	/** Microsoft Clarity project id; when unset, no analytics script is emitted. */
 	readonly VITE_CLARITY_ID?: string;
-	/** Ad link opened on the first download click; unset → no ad. */
-	readonly VITE_AD_URL?: string;
 }
 
 interface ImportMeta {

@@ -10,9 +10,9 @@ import {
 	ShieldAlert,
 	SlidersHorizontal,
 } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Logo } from "../components/Logo";
-import { AD_URL, DOWNLOAD_URL, REPO_URL } from "../config";
+import { DOWNLOAD_URL, REPO_URL } from "../config";
 import { en } from "../i18n";
 import { useI18n } from "../i18n/context";
 import { pageHead, SITE_URL } from "../seo";
@@ -52,20 +52,9 @@ export const Route = createFileRoute("/")({
 
 function Home() {
 	const { t } = useI18n();
-	const adOpened = useRef(false);
-
 	useEffect(() => {
 		document.title = t.seo.homeTitle;
 	}, [t.seo.homeTitle]);
-
-	// Opened in the click itself or the browser blocks it as a popup; the link
-	// still starts the download in this tab.
-	const openAdOnce = () => {
-		if (AD_URL && !adOpened.current) {
-			adOpened.current = true;
-			window.open(AD_URL, "_blank", "noopener");
-		}
-	};
 
 	return (
 		<div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
@@ -87,7 +76,6 @@ function Home() {
 					<div className="flex flex-col items-center gap-3 pt-2">
 						<a
 							href={DOWNLOAD_URL}
-							onClick={openAdOnce}
 							className="inline-flex items-center gap-2.5 rounded-xl bg-purple-600 px-6 py-3.5 text-lg font-semibold text-white transition-colors hover:bg-purple-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
 						>
 							<Download className="h-5 w-5" aria-hidden="true" />
