@@ -10,9 +10,31 @@ public enum CookieBrowser: String, CaseIterable, Codable, Sendable, Identifiable
 	var argument: String? { self == .none ? nil : rawValue }
 }
 
+/// The built-in browser's identity. yt-dlp sends the same one: a site's sign-in or
+/// Cloudflare clearance cookie can be tied to the browser that earned it.
+public enum BrowserIdentity {
+	public static let userAgent =
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15"
+}
+
+/// A stream found by the built-in browser: fetched with the browser's cookies, its
+/// page as referer, and named after that page, since a bare `.m3u8` is titled "index".
+public struct BrowserContext: Codable, Sendable, Equatable, Hashable {
+	public var referer: String
+	public var title: String
+	public init(referer: String, title: String) {
+		self.referer = referer
+		self.title = title
+	}
+}
+
 public struct EngineOptions: Sendable {
 	public var cookies: CookieBrowser
-	public init(cookies: CookieBrowser) { self.cookies = cookies }
+	public var browser: BrowserContext?
+	public init(cookies: CookieBrowser, browser: BrowserContext? = nil) {
+		self.cookies = cookies
+		self.browser = browser
+	}
 
 	var common: [String] {
 		var args = [
@@ -21,7 +43,12 @@ public struct EngineOptions: Sendable {
 			"--js-runtimes", "quickjs:\(AppPaths.quickJS.path)",
 			"--no-warnings",
 		]
-		if let browser = cookies.argument {
+		if let browser {
+			args += [
+				"--cookies", AppPaths.browserCookies.path, "--referer", browser.referer,
+				"--user-agent", BrowserIdentity.userAgent,
+			]
+		} else if let browser = cookies.argument {
 			args += ["--cookies-from-browser", browser]
 		}
 		return args
@@ -56,7 +83,8 @@ public enum Engine {
 		pageURL: String, choice: Choice, folder: URL, partials: URL, options: EngineOptions
 	) -> [String] {
 		// ` [720p]` only when the height is known, never ` [NAp]`.
-		let name = choice.kind == .video ? "%(title).150B%(height& [{}p]|)s.%(ext)s" : "%(title).150B.%(ext)s"
+		let title = options.browser.map { literalTitle($0.title) } ?? "%(title).150B"
+		let name = choice.kind == .video ? "\(title)%(height& [{}p]|)s.%(ext)s" : "\(title).%(ext)s"
 		return options.common + choice.arguments + [
 			"-P", "home:\(folder.path)", "-P", "temp:\(partials.path)",
 			"-o", name,
@@ -66,6 +94,28 @@ public enum Engine {
 			"--", pageURL,
 		]
 	}
+}
+
+/// `title` as literal output-template text: `%` escaped, no path separators, at most
+/// 150 characters.
+func literalTitle(_ title: String) -> String {
+	let clean = title.trimmingCharacters(in: .whitespacesAndNewlines)
+		.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
+	return String((clean.isEmpty ? "video" : clean).prefix(150)).replacingOccurrences(of: "%", with: "%%")
+}
+
+/// `cookies` as a Netscape cookie file, the format `yt-dlp --cookies` reads.
+public func netscapeCookieFile(_ cookies: [HTTPCookie]) -> String {
+	var lines = ["# Netscape HTTP Cookie File"]
+	for cookie in cookies {
+		let domain = (cookie.isHTTPOnly ? "#HttpOnly_" : "") + cookie.domain
+		let expires = cookie.expiresDate.map { String(Int($0.timeIntervalSince1970)) } ?? "0"
+		lines.append([
+			domain, cookie.domain.hasPrefix(".") ? "TRUE" : "FALSE", cookie.path,
+			cookie.isSecure ? "TRUE" : "FALSE", expires, cookie.name, cookie.value,
+		].joined(separator: "\t"))
+	}
+	return lines.joined(separator: "\n") + "\n"
 }
 
 let progressPrefix = "[snatch] "
