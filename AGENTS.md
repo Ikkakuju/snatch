@@ -15,7 +15,7 @@ Snatch is a free, open-source **macOS app** that downloads video from any site [
 | `macos/Sources/Snatch/` | SwiftUI. `Store.swift` (`@Observable` main-actor store: tool setup, probe, job queue, pause/resume, persistence to `downloads.json`), `Views.swift` (app, main window, picker, job rows, Settings). |
 | `macos/Tests/SnatchCoreTests/` | Swift Testing (`import Testing`). |
 | `macos/scripts/bundle.sh` | `Snatch.app` for Apple silicon only (arm64; Intel is not supported), icon from `packages/web/public/logo512.png`, ad-hoc `codesign`, `Snatch.dmg`. |
-| `packages/web/` | TanStack Start, prerendered at build time to one page (`routes/index.tsx`), 13 locales in `src/i18n/locales` (`Messages = typeof en`), deployed as static assets on a Cloudflare Worker (`void.config.ts`, `scripts/deploy-web.sh`). |
+| `packages/web/` | TanStack Start, prerendered at build time to one page (`routes/index.tsx`), 13 locales in `src/i18n/locales` (`Messages = typeof en`), deployed as static assets on a Cloudflare Worker with Void (`void.config.ts`: Worker `snatch`, Custom Domain `snatchvideos.com`; `scripts/deploy-web.sh`). |
 
 ## How a download works
 
