@@ -25,6 +25,7 @@ export const ja: Messages = {
 			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliなど数千のサイトから動画をMP4またはMP3で保存できる、無料・オープンソースのMacアプリです。",
 	},
 	home: {
+		whatsNew: "新機能：内蔵ブラウザ",
 		tagline: "リンクを貼るだけで、動画を手元に。",
 		subtitle:
 			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800のサイトの動画を、MP4またはMP3でMacに保存します。それ以外のページも、内蔵ブラウザで開けば再生中の動画を保存できます。",

@@ -25,6 +25,7 @@ export const id: Messages = {
 			"Snatch adalah aplikasi Mac gratis dan open source yang mengunduh video dari YouTube, X, TikTok, Instagram, Bilibili, dan ribuan situs lain sebagai MP4 atau MP3.",
 	},
 	home: {
+		whatsNew: "Baru: browser bawaan",
 		tagline: "Tempel tautan. Simpan videonya.",
 		subtitle:
 			"Snatch menyimpan video dari YouTube, X, TikTok, Instagram, Bilibili, dan 1.800 situs lainnya ke Mac Anda, sebagai MP4 atau MP3. Untuk halaman lain, buka di browser bawaan dan simpan apa yang diputarnya.",

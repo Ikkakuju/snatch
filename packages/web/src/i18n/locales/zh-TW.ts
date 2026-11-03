@@ -25,6 +25,7 @@ export const zhTW: Messages = {
 			"Snatch 是一款免費開源的 Mac App，可將 YouTube、X、TikTok、Instagram、Bilibili 等數千個網站的影片下載為 MP4 或 MP3。",
 	},
 	home: {
+		whatsNew: "新功能：內建瀏覽器",
 		tagline: "貼上連結，留下影片。",
 		subtitle:
 			"Snatch 能把 YouTube、X、TikTok、Instagram、Bilibili 以及其他 1,800 個網站的影片存到你的 Mac，格式為 MP4 或 MP3。其他網頁可以在內建瀏覽器中打開，儲存正在播放的影片。",

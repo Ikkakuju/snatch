@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Github } from "lucide-react";
+import { ChevronRight, Github, Globe } from "lucide-react";
 import { useEffect } from "react";
 import { BrowseDemo, LinkDemo } from "../components/Demos";
 import { DownloadButton } from "../components/DownloadButton";
@@ -43,8 +43,22 @@ function Home() {
 				aria-hidden="true"
 				className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[1100px] bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(90,58,255,0.38),transparent_70%)]"
 			/>
+			<div
+				aria-hidden="true"
+				className="hero-pattern pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]"
+			/>
 
 			<section className="mx-auto max-w-5xl px-4 pt-20 pb-24 text-center sm:pt-28 sm:pb-32">
+				<a
+					href={`${REPO_URL}/releases/latest`}
+					className="mb-8 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 py-1.5 pr-3 pl-1.5 text-sm text-[#c9bdff] transition-colors hover:border-brand/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+				>
+					<span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
+						<Globe className="h-3.5 w-3.5" aria-hidden="true" />
+					</span>
+					{t.home.whatsNew}
+					<ChevronRight className="h-4 w-4" aria-hidden="true" />
+				</a>
 				<h1 className="mx-auto max-w-4xl font-['Outfit'] text-[3.25rem] leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-7xl lg:text-[5.5rem]">
 					{t.home.tagline}
 				</h1>

@@ -23,6 +23,7 @@ export const en = {
 			"Snatch is a free, open-source Mac app that downloads video from YouTube, X, TikTok, Instagram, Bilibili and thousands of other sites as MP4 or MP3.",
 	},
 	home: {
+		whatsNew: "New: the built-in browser",
 		tagline: "Paste a link. Keep the video.",
 		subtitle:
 			"Snatch saves video from YouTube, X, TikTok, Instagram, Bilibili and 1,800 other sites to your Mac, as MP4 or MP3. For any other page, open it in the built-in browser and save what it plays.",

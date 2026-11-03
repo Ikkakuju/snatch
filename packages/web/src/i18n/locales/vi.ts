@@ -25,6 +25,7 @@ export const vi: Messages = {
 			"Snatch là ứng dụng Mac miễn phí, mã nguồn mở, tải video từ YouTube, X, TikTok, Instagram, Bilibili và hàng nghìn trang khác dưới dạng MP4 hoặc MP3.",
 	},
 	home: {
+		whatsNew: "Mới: trình duyệt tích hợp",
 		tagline: "Dán liên kết. Giữ lại video.",
 		subtitle:
 			"Snatch lưu video từ YouTube, X, TikTok, Instagram, Bilibili và 1.800 trang khác về máy Mac của bạn, dưới dạng MP4 hoặc MP3. Với các trang còn lại, hãy mở bằng trình duyệt tích hợp và lưu những gì đang phát.",

@@ -25,6 +25,7 @@ export const ru: Messages = {
 			"Snatch — бесплатное приложение с открытым исходным кодом для Mac, которое скачивает видео с YouTube, X, TikTok, Instagram, Bilibili и тысяч других сайтов в MP4 или MP3.",
 	},
 	home: {
+		whatsNew: "Новое: встроенный браузер",
 		tagline: "Вставьте ссылку. Сохраните видео.",
 		subtitle:
 			"Snatch сохраняет на ваш Mac видео с YouTube, X, TikTok, Instagram, Bilibili и ещё 1 800 сайтов в MP4 или MP3. Любую другую страницу откройте во встроенном браузере и сохраните то, что на ней играет.",

@@ -25,6 +25,7 @@ export const it: Messages = {
 			"Snatch è un'app per Mac gratuita e open source che scarica video da YouTube, X, TikTok, Instagram, Bilibili e migliaia di altri siti in MP4 o MP3.",
 	},
 	home: {
+		whatsNew: "Novità: il browser integrato",
 		tagline: "Incolla un link. Tieni il video.",
 		subtitle:
 			"Snatch salva sul tuo Mac i video di YouTube, X, TikTok, Instagram, Bilibili e altri 1.800 siti, in MP4 o MP3. Qualsiasi altra pagina, aprila nel browser integrato e salva ciò che riproduce.",

@@ -25,6 +25,7 @@ export const ko: Messages = {
 			"Snatch는 YouTube, X, TikTok, Instagram, Bilibili 등 수천 개 사이트의 동영상을 MP4 또는 MP3로 내려받는 무료 오픈 소스 Mac 앱입니다.",
 	},
 	home: {
+		whatsNew: "새 기능: 내장 브라우저",
 		tagline: "링크를 붙여 넣고, 영상을 간직하세요.",
 		subtitle:
 			"Snatch는 YouTube, X, TikTok, Instagram, Bilibili 그리고 1,800개의 다른 사이트에서 영상을 MP4나 MP3로 Mac에 저장합니다. 그 밖의 페이지는 내장 브라우저로 열어 재생 중인 영상을 저장하세요.",
