@@ -12,6 +12,8 @@ public enum AppPaths {
 	/// moves the finished file into the download folder.
 	public static let partials = support.appendingPathComponent("partials", isDirectory: true)
 	public static let jobs = support.appendingPathComponent("downloads.json")
+	/// The built-in browser's cookies, exported for yt-dlp before each browser download.
+	public static let browserCookies = support.appendingPathComponent("browser-cookies.txt")
 
 	/// yt-dlp's unpacked macOS build: a launcher next to `_internal`, which starts
 	/// faster than the one-file build because nothing is extracted on each run.
@@ -82,12 +84,12 @@ private func gh(_ repo: String, _ asset: String) -> URL {
 
 // ponytail: ffmpeg is pinned (the build server publishes no checksums); bump the
 // URL and hashes together when a newer ffmpeg is needed.
-private let ffmpegBase = "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_9.0.2"
+private let ffmpegBase = "https://ffmpeg.martin-riedl.de/download/macos/arm64/1789931890_\(Tools.ffmpegVersion)"
 private let ffmpegSHA = "c8ed4c4e6978a03c485edbfe4e0a5dc2380f8a30bba5150531b31b094492d924"
 private let ffprobeSHA = "fcbe839537485eaee7a7a8bc5cbc0f90d53617e80943e8a5b2e31cb851197ea6"
 // ponytail: QuickJS-ng is pinned like ffmpeg (its checksums are only in the GitHub API,
 // which rate-limits); yt-dlp needs 0.12.0 or later to stay fast.
-private let quickJSURL = "https://github.com/quickjs-ng/quickjs/releases/download/v0.18.0/qjs-darwin-arm64"
+private let quickJSURL = "https://github.com/quickjs-ng/quickjs/releases/download/v\(Tools.quickJSVersion)/qjs-darwin-arm64"
 private let quickJSSHA = "91fe89916d3b0a6c01c4dc8382a99c3c1fd91ecfc214aa81ca051902bcce590d"
 
 let ytDlpSpec = ToolSpec(
@@ -117,6 +119,10 @@ let toolSpecs: [ToolSpec] = [
 ]
 
 public enum Tools {
+	/// The pinned builds; bump together with their URLs' hashes above.
+	public static let ffmpegVersion = "9.0.2"
+	public static let quickJSVersion = "0.18.0"
+
 	public static func isInstalled(_ component: Component) -> Bool {
 		toolSpecs.allSatisfy {
 			$0.component != component || FileManager.default.isExecutableFile(atPath: $0.executable.path)
@@ -133,21 +139,27 @@ public enum Tools {
 		}
 	}
 
-	/// At most once a day, since site extractors break as sites change. The unpacked
-	/// build cannot `yt-dlp -U` itself, so a release whose zip hash differs from the
-	/// installed one is downloaded again. Call it while no yt-dlp runs: replacing its
-	/// folder under a running one would break it. Offline, nothing changes.
+	/// At most once a day, since site extractors break as sites change. Offline,
+	/// nothing changes.
 	public static func updateYtDlpIfDue() async {
-		let key = "lastYtDlpUpdate"
-		guard isInstalled(.engine),
-			Date().timeIntervalSince1970 - UserDefaults.standard.double(forKey: key) > 86_400,
-			let latest = try? await expectedHash(ytDlpSpec)
+		guard Date().timeIntervalSince1970 - UserDefaults.standard.double(forKey: lastUpdateKey) > 86_400
 		else { return }
-		if latest != (try? String(contentsOf: installedHash(ytDlpSpec), encoding: .utf8)) {
-			guard (try? await install(ytDlpSpec)) != nil else { return }
-		}
-		UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: key)
+		_ = try? await updateYtDlp()
 	}
+
+	/// The unpacked build cannot `yt-dlp -U` itself, so a release whose zip hash
+	/// differs from the installed one is downloaded again; true when it was. Call it
+	/// while no yt-dlp runs: replacing its folder under a running one would break it.
+	public static func updateYtDlp() async throws -> Bool {
+		guard isInstalled(.engine) else { return false }
+		let latest = try await expectedHash(ytDlpSpec)
+		let stale = latest != (try? String(contentsOf: installedHash(ytDlpSpec), encoding: .utf8))
+		if stale { try await install(ytDlpSpec) }
+		UserDefaults.standard.set(Date().timeIntervalSince1970, forKey: lastUpdateKey)
+		return stale
+	}
+
+	private static let lastUpdateKey = "lastYtDlpUpdate"
 
 	private static func installedHash(_ spec: ToolSpec) -> URL {
 		AppPaths.bin.appendingPathComponent(".\(spec.destination.lastPathComponent).sha256")

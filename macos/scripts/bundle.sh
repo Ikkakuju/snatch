@@ -18,13 +18,12 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$(swift build -c release --arch arm64 --product Snatch --show-bin-path)/Snatch" "$APP/Contents/MacOS/"
 sed "s/__VERSION__/$VERSION/g" Info.plist > "$APP/Contents/Info.plist"
 
-# ponytail: the icon is the web logo scaled from 512px; draw a proper 1024px
-# macOS tile when there is a designer.
+# AppIcon.png is rendered from the web logo by scripts/brand-assets.swift.
 ICONSET=$(mktemp -d)/AppIcon.iconset
 mkdir -p "$ICONSET"
 for size in 16 32 128 256 512; do
-	sips -z $size $size ../packages/web/public/logo512.png --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
-	sips -z $((size * 2)) $((size * 2)) ../packages/web/public/logo512.png \
+	sips -z $size $size AppIcon.png --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
+	sips -z $((size * 2)) $((size * 2)) AppIcon.png \
 		--out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
 done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"

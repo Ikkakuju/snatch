@@ -26,5 +26,11 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>MIT License</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- The built-in browser opens any page the user types, http ones too. -->
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

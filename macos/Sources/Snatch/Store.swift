@@ -14,12 +14,31 @@ struct Job: Codable, Identifiable {
 	var pageURL: String
 	var title: String
 	var thumbnail: URL?
+	var duration: Double?
 	var choice: Choice
 	var folder: URL
 	var state: State = .queued
 	var progress: DownloadProgress?
+	/// Set for a stream found by the built-in browser.
+	var browser: BrowserContext?
 
 	var partials: URL { AppPaths.partials.appendingPathComponent(id.uuidString, isDirectory: true) }
+
+	var isDone: Bool { if case .done = state { true } else { false } }
+}
+
+/// What the sidebar shows.
+enum SidebarItem: Hashable {
+	case all, inProgress, finished, browse, settings
+
+	func includes(_ job: Job) -> Bool {
+		switch self {
+		case .all: true
+		case .inProgress: !job.isDone
+		case .finished: job.isDone
+		case .browse, .settings: false
+		}
+	}
 }
 
 @MainActor @Observable
@@ -30,10 +49,17 @@ final class Store {
 	var installError: String?
 	/// The launch-time yt-dlp update check; nothing may run yt-dlp until it is done.
 	var updating = true
+	var ytDlpVersion: String?
+	/// The outcome of the last "Check for Updates", shown under the components.
+	var updateMessage: String?
+
+	var section: SidebarItem = .all
 	var jobs: [Job] = []
 
 	var probing = false
 	var probeError: String?
+	/// A pasted page yt-dlp could not read: the built-in browser may still find its video.
+	var unreadablePage: URL?
 	var pending: MediaInfo?
 
 	var folder: URL {
@@ -62,7 +88,10 @@ final class Store {
 		}
 	}
 
-	private var options: EngineOptions { EngineOptions(cookies: cookies) }
+
+	var isDownloading: Bool { jobs.contains { $0.state == .running } }
+
+	func count(_ section: SidebarItem) -> Int { jobs.filter(section.includes).count }
 
 	var canProbe: Bool { installed.contains(.engine) && !updating && !probing }
 
@@ -76,6 +105,25 @@ final class Store {
 	func prepare() async {
 		await Tools.updateYtDlpIfDue()
 		updating = false
+		ytDlpVersion = await Tools.ytDlpVersion()
+		pump()
+	}
+
+	/// A manual yt-dlp update; only between downloads, since it replaces yt-dlp's folder.
+	func checkForUpdate() async {
+		guard !updating, !isDownloading else { return }
+		updating = true
+		updateMessage = nil
+		do {
+			let updated = try await Tools.updateYtDlp()
+			ytDlpVersion = await Tools.ytDlpVersion()
+			updateMessage = updated
+				? String(localized: "Updated to \(ytDlpVersion ?? "the latest version").")
+				: String(localized: "yt-dlp is up to date.")
+		} catch {
+			updateMessage = error.localizedDescription
+		}
+		updating = false
 		pump()
 	}
 
@@ -87,6 +135,7 @@ final class Store {
 		do {
 			try await Tools.install(component)
 			installed.insert(component)
+			if component == .engine { ytDlpVersion = await Tools.ytDlpVersion() }
 			pump()
 		} catch {
 			installError = error.localizedDescription
@@ -95,7 +144,12 @@ final class Store {
 
 	// MARK: Resolve
 
-	func probe(_ link: String) async {
+	/// Where `pending` came from, when that was the built-in browser.
+	private var pendingBrowser: BrowserContext?
+
+	/// Reads `link` with yt-dlp. A stream from the built-in browser is fetched as that
+	/// browser (its cookies must be exported first) and titled after its page.
+	func probe(_ link: String, browser: BrowserContext? = nil, thumbnail: URL? = nil) async {
 		let url = link.trimmingCharacters(in: .whitespacesAndNewlines)
 		guard let parsed = URL(string: url), ["http", "https"].contains(parsed.scheme?.lowercased()) else {
 			probeError = String(localized: "Paste a link that starts with http:// or https://.")
@@ -103,18 +157,29 @@ final class Store {
 		}
 		probing = true
 		probeError = nil
+		unreadablePage = nil
 		pending = nil
 		defer { probing = false }
 		do {
-			pending = try await Engine.probe(url, options: options)
+			var info = try await Engine.probe(url, options: EngineOptions(cookies: cookies, browser: browser))
+			if let browser {
+				info.title = browser.title
+				info.thumbnail = info.thumbnail ?? thumbnail
+			}
+			pendingBrowser = browser
+			pending = info
 		} catch {
 			probeError = error.localizedDescription
+			if browser == nil { unreadablePage = parsed }
 		}
 	}
 
 	func add(_ info: MediaInfo, _ choice: Choice) {
 		jobs.insert(
-			Job(pageURL: info.pageURL, title: info.title, thumbnail: info.thumbnail, choice: choice, folder: folder),
+			Job(
+				pageURL: info.pageURL, title: info.title, thumbnail: info.thumbnail, duration: info.duration,
+				choice: choice, folder: folder, browser: pendingBrowser
+			),
 			at: 0
 		)
 		pending = nil
@@ -154,12 +219,16 @@ final class Store {
 	}
 
 	func clearFinished() {
-		jobs.removeAll { if case .done = $0.state { true } else { false } }
+		jobs.removeAll(where: \.isDone)
 		save()
 	}
 
 	func reveal(_ file: URL) {
 		NSWorkspace.shared.activateFileViewerSelecting([file])
+	}
+
+	func open(_ file: URL) {
+		NSWorkspace.shared.open(file)
 	}
 
 	@discardableResult
@@ -190,7 +259,9 @@ final class Store {
 		do {
 			let run = try DownloadRun(
 				pageURL: job.pageURL, choice: job.choice, folder: job.folder, partials: job.partials,
-				options: options
+				// ponytail: a resumed browser job reuses the last exported cookies; export
+				// again here if sites start expiring them between pause and resume.
+				options: EngineOptions(cookies: cookies, browser: job.browser)
 			)
 			runs[job.id] = run
 			jobs[index].state = .running

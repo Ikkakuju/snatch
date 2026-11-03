@@ -76,3 +76,30 @@ import Testing
 	#expect(result.stdout == "out")
 	#expect(result.stderr == "err")
 }
+
+@Test func browserCookiesExportAsNetscapeLines() throws {
+	let session = try #require(HTTPCookie(properties: [
+		.domain: ".example.com", .path: "/", .name: "cf_clearance", .value: "abc", .secure: "TRUE",
+	]))
+	let signIn = try #require(HTTPCookie(properties: [
+		.domain: "example.com", .path: "/app", .name: "sid", .value: "x y",
+		// Within 400 days: HTTPCookie caps longer expiries.
+		.expires: Date(timeIntervalSince1970: 1_800_000_000),
+	]))
+	let lines = netscapeCookieFile([session, signIn]).split(separator: "\n")
+	#expect(lines[0] == "# Netscape HTTP Cookie File")
+	#expect(lines[1] == ".example.com\tTRUE\t/\tTRUE\t0\tcf_clearance\tabc")
+	#expect(lines[2] == "example.com\tFALSE\t/app\tFALSE\t1800000000\tsid\tx y")
+}
+
+@Test func browserDownloadsAreNamedAfterTheirPage() {
+	let options = EngineOptions(cookies: .safari, browser: BrowserContext(referer: "https://a.test/v", title: "50% off: a/b"))
+	let choice = Choice(id: "best", kind: .video, label: "Best", sizeEstimate: nil, arguments: [])
+	let args = Engine.downloadArguments(
+		pageURL: "https://cdn.test/index.m3u8", choice: choice, folder: URL(fileURLWithPath: "/tmp"),
+		partials: URL(fileURLWithPath: "/tmp/p"), options: options
+	)
+	#expect(args.contains("50%% off- a-b%(height& [{}p]|)s.%(ext)s"))
+	#expect(args.contains("--referer") && args.contains("--cookies"))
+	#expect(!args.contains("--cookies-from-browser"))
+}
