@@ -2,7 +2,7 @@
 
 ## 当前 CI/CD 分工（2026-11-03）
 
-网站 CI 在 omarchy（唯一 `tag:base`）：runner `omarchy-snatch-ci`，用户 `runner-snatch-ci`，标签 `ci,omarchy`，安装目录 `~/actions-runner`。CI 用户无 Docker/sudo，串行 hooks，ci.slice CPU 600%、MemoryHigh 5G、MemoryMax 6G、swap 1G，屏蔽个人目录、Docker/Tailscale socket、overlay 与 RFC1918。Mac app 的测试和发布只能在 macOS 上跑，使用 GitHub 托管的 `macos-15`（私有仓库按 macOS 分钟计费，公开后免费）。本仓库已不再使用 CD runner `omarchy-snatch-deploy` 和生产机 `racknerd-buffalo`（API 服务、Docker、Cloudflare Tunnel 均已移除），可在 infra 侧下线。网站由 Cloudflare Workers Builds 部署。
+全部用 GitHub 托管 runner（公开仓库免费）：网站 CI 在 `ubuntu-latest`，Mac app 的测试和发布在 `macos-15`。不使用自建 runner、CD runner 或服务器。网站由 Cloudflare Workers Builds 部署。
 
 Snatch is a free, open-source **macOS app** that downloads video from any site [yt-dlp](https://github.com/yt-dlp/yt-dlp) supports, plus **snatchvideos.com**, a static landing page with the download link. There is no server: every download runs on the user's Mac.
 
@@ -53,7 +53,7 @@ bun run build           # packages/web/dist/client — never bare `bun build`
 
 ## CI, Release & Attribution
 
-- `.github/workflows/ci.yml` (PR + main, omarchy): `bun install --frozen-lockfile` → `bunx biome ci .` → `bun run typecheck` → `bun run build`.
+- `.github/workflows/ci.yml` (PR + main, `ubuntu-latest`): `bun install --frozen-lockfile` → `bunx biome ci .` → `bun run typecheck` → `bun run build`.
 - `.github/workflows/macos.yml` (changes under `macos/`, and `v*` tags, on `macos-15`): `swift test`; a `v1.2.3` tag also runs `bundle.sh` with that version and `gh release create` with `Snatch.dmg`. The asset name is version-free so the site links to `releases/latest/download/Snatch.dmg` — this only works for visitors once the repository is public.
 - The website is deployed by Cloudflare Workers Builds: build `bun run build:web`, deploy `bash scripts/deploy-web.sh`.
 - Git hooks via lefthook: pre-commit Biome on staged files; pre-push `bun run typecheck`.

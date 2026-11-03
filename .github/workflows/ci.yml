@@ -8,13 +8,9 @@ permissions:
   contents: read
 
 jobs:
-  # The website only. Runs on the repo's own runner on the omarchy host
-  # (`omarchy-snatch-ci`, registered with Ikkakuju/infra's provision-ci-runner.sh).
-  # The Mac app is checked by macos.yml, which needs a macOS runner.
+  # The website only; the Mac app is checked by macos.yml on a macOS runner.
   check:
-    runs-on: [self-hosted, ci, omarchy]
-    # 这个 job 会抢全局 ci-serial 锁：卡死的话所有仓库的 CI 都排在它后面，
-    # 所以给个上界，别指望 GitHub 默认的 6 小时。
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       # Pinned to full SHAs; Dependabot/Renovate should move them.
