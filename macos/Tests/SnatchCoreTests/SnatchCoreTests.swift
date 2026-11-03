@@ -103,3 +103,26 @@ import Testing
 	#expect(args.contains("--referer") && args.contains("--cookies"))
 	#expect(!args.contains("--cookies-from-browser"))
 }
+
+/// A line reaches us while the child is still running, not only at exit: progress
+/// depends on it.
+@Test func linesArriveWhileTheChildRuns() async throws {
+	let child = try ChildProcess(URL(fileURLWithPath: "/bin/sh"), ["-c", "echo first; sleep 5; echo last"])
+	let start = ContinuousClock.now
+	for await (_, line) in child.lines {
+		#expect(line == "first")
+		#expect(ContinuousClock.now - start < .seconds(3))
+		break
+	}
+	child.terminate()
+	_ = await child.wait()
+}
+
+/// More output than a pipe holds must not stall the child.
+@Test func outputLargerThanAPipeIsDrained() async throws {
+	let result = try await ProcessRunner.run(
+		URL(fileURLWithPath: "/bin/sh"), ["-c", "yes 0123456789 | head -n 40000"]
+	)
+	#expect(result.status == 0)
+	#expect(result.stdout.split(separator: "\n").count == 40000)
+}
