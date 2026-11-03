@@ -26,11 +26,14 @@ export const ja: Messages = {
 	},
 	home: {
 		whatsNew: "新機能：内蔵ブラウザ",
-		tagline: "リンクを貼るだけで、動画を手元に。",
+		tagline: "リンクを貼るだけで、\n動画を手元に。",
 		subtitle:
 			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800のサイトの動画を、MP4またはMP3でMacに保存します。それ以外のページも、内蔵ブラウザで開けば再生中の動画を保存できます。",
 		download: "Mac版をダウンロード",
 		requirements: "無料。Apple silicon搭載のmacOS 14以降に対応。",
+		unsignedNote: "署名なしのビルドです。macOSが一度だけ確認を求めます。",
+		closingTitle: "最初のリンクを貼ってみましょう。",
+		stepsToggle: "手順を見る",
 		source: "GitHubでソースコードを見る",
 		waysTitle: "動画を保存する2つの方法",
 		ways: [

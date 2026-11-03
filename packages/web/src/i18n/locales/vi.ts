@@ -31,6 +31,9 @@ export const vi: Messages = {
 			"Snatch lưu video từ YouTube, X, TikTok, Instagram, Bilibili và 1.800 trang khác về máy Mac của bạn, dưới dạng MP4 hoặc MP3. Với các trang còn lại, hãy mở bằng trình duyệt tích hợp và lưu những gì đang phát.",
 		download: "Tải về cho Mac",
 		requirements: "Miễn phí, cho macOS 14 trở lên trên Apple silicon.",
+		unsignedNote: "Bản dựng chưa ký: macOS sẽ hỏi xác nhận một lần.",
+		closingTitle: "Dán liên kết đầu tiên của bạn.",
+		stepsToggle: "Xem các bước",
 		source: "Mã nguồn trên GitHub",
 		waysTitle: "Hai cách lưu video",
 		ways: [

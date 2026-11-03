@@ -31,6 +31,9 @@ export const fr: Messages = {
 			"Snatch enregistre sur votre Mac les vidéos de YouTube, X, TikTok, Instagram, Bilibili et 1 800 autres sites, en MP4 ou MP3. Toute autre page, ouvrez-la dans le navigateur intégré et enregistrez ce qu’elle lit.",
 		download: "Télécharger pour Mac",
 		requirements: "Gratuit, pour macOS 14 ou ultérieur sur Apple silicon.",
+		unsignedNote: "Version non signée : macOS vous demande de confirmer une fois.",
+		closingTitle: "Collez votre premier lien.",
+		stepsToggle: "Voir les étapes",
 		source: "Code source sur GitHub",
 		waysTitle: "Deux façons d’enregistrer une vidéo",
 		ways: [

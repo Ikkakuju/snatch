@@ -21,6 +21,8 @@ struct Job: Codable, Identifiable {
 	var progress: DownloadProgress?
 	/// Set for a stream found by the built-in browser.
 	var browser: BrowserContext?
+	/// Bytes of the finished file, when known.
+	var savedBytes: Int64?
 
 	var partials: URL { AppPaths.partials.appendingPathComponent(id.uuidString, isDirectory: true) }
 
@@ -58,6 +60,10 @@ final class Store {
 
 	var probing = false
 	var probeError: String?
+	/// What the link bar holds.
+	var linkDraft = ""
+	/// A link that arrived before yt-dlp was installed: probed as soon as it is.
+	var deferredLink: String?
 	/// A pasted page yt-dlp could not read: the built-in browser may still find its video.
 	var unreadablePage: URL?
 	var pending: MediaInfo?
@@ -135,7 +141,13 @@ final class Store {
 		do {
 			try await Tools.install(component)
 			installed.insert(component)
-			if component == .engine { ytDlpVersion = await Tools.ytDlpVersion() }
+			if component == .engine {
+				ytDlpVersion = await Tools.ytDlpVersion()
+				if let link = deferredLink {
+					deferredLink = nil
+					Task { await probe(link) }
+				}
+			}
 			pump()
 		} catch {
 			installError = error.localizedDescription
@@ -202,6 +214,30 @@ final class Store {
 		jobs[index].state = .queued
 		save()
 		pump()
+	}
+
+	/// Resumes every paused or failed job, for the Downloads menu.
+	func resumeAll() {
+		for index in jobs.indices {
+			switch jobs[index].state {
+			case .paused, .failed: jobs[index].state = .queued
+			default: break
+			}
+		}
+		save()
+		pump()
+	}
+
+	/// The Downloads menu's Paste Link and Get: the clipboard becomes the link bar's
+	/// contents, then resolves. Without yt-dlp it waits for the install instead of failing.
+	func pasteAndGet() async {
+		guard let text = NSPasteboard.general.string(forType: .string) else { return }
+		linkDraft = text
+		guard canProbe else {
+			deferredLink = text
+			return
+		}
+		await probe(text)
 	}
 
 	func remove(_ id: UUID) {
@@ -282,6 +318,8 @@ final class Store {
 				jobs[index].progress = progress
 			case let .finished(file):
 				jobs[index].state = .done(file)
+				let size = (try? FileManager.default.attributesOfItem(atPath: file.path))?[.size] as? NSNumber
+				jobs[index].savedBytes = size?.int64Value
 				try? FileManager.default.removeItem(at: jobs[index].partials)
 			case let .failed(error):
 				jobs[index].state = .failed(error.message)

@@ -29,6 +29,9 @@ export const en = {
 			"Snatch saves video from YouTube, X, TikTok, Instagram, Bilibili and 1,800 other sites to your Mac, as MP4 or MP3. For any other page, open it in the built-in browser and save what it plays.",
 		download: "Download for Mac",
 		requirements: "Free, for macOS 14 or later on Apple silicon.",
+		unsignedNote: "Unsigned build: macOS asks you to confirm it once.",
+		closingTitle: "Paste your first link.",
+		stepsToggle: "Show the steps",
 		source: "Source code on GitHub",
 		waysTitle: "Two ways to save a video",
 		ways: [

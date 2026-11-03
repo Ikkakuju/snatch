@@ -48,10 +48,10 @@ function Home() {
 				className="hero-pattern pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]"
 			/>
 
-			<section className="mx-auto max-w-5xl px-4 pt-20 pb-24 text-center sm:pt-28 sm:pb-32">
+			<section className="mx-auto max-w-5xl px-4 pt-14 pb-20 text-center sm:pt-16 sm:pb-24">
 				<a
 					href={`${REPO_URL}/releases/latest`}
-					className="mb-8 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 py-1.5 pr-3 pl-1.5 text-sm text-[#c9bdff] transition-colors hover:border-brand/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+					className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 py-1.5 pr-3 pl-1.5 text-sm text-[#c9bdff] transition-colors hover:border-brand/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
 				>
 					<span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
 						<Globe className="h-3.5 w-3.5" aria-hidden="true" />
@@ -59,13 +59,13 @@ function Home() {
 					{t.home.whatsNew}
 					<ChevronRight className="h-4 w-4" aria-hidden="true" />
 				</a>
-				<h1 className="mx-auto max-w-4xl font-['Outfit'] text-[3.25rem] leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-7xl lg:text-[5.5rem]">
+				<h1 className="mx-auto max-w-4xl font-['Outfit'] text-[3.25rem] leading-[1.02] font-semibold tracking-[-0.04em] text-balance whitespace-pre-line sm:text-7xl">
 					{t.home.tagline}
 				</h1>
-				<p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-pretty text-[#b9b2d6] sm:text-lg">
+				<p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-pretty text-[#b9b2d6] sm:text-lg">
 					{t.home.subtitle}
 				</p>
-				<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
+				<div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
 					<DownloadButton className="h-14 w-full px-8 text-base sm:w-auto">
 						{t.home.download}
 					</DownloadButton>
@@ -77,8 +77,16 @@ function Home() {
 						{t.home.source}
 					</a>
 				</div>
-				<p className="mt-5 text-sm text-[#8f86b8]">{t.home.requirements}</p>
-				<div className="mt-16 sm:mt-20">
+				<p className="mt-4 text-sm text-[#8f86b8]">{t.home.requirements}</p>
+				{/* The moment of commitment: say why macOS will object, here, not three screens down. */}
+				<a
+					href="#setup"
+					className="mt-2 inline-flex items-center gap-1 text-sm text-[#c9bdff] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+				>
+					{t.home.unsignedNote}
+					<ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+				</a>
+				<div className="mt-10 sm:mt-12">
 					<LinkDemo />
 				</div>
 			</section>
@@ -119,23 +127,46 @@ function Home() {
 			</section>
 
 			<section id="setup" className="scroll-mt-16 border-t border-white/[0.08]">
-				<div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
+				<div className="mx-auto grid max-w-6xl gap-10 px-4 pt-20 pb-16 sm:pt-28 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
 					<div>
 						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
 							{t.home.firstOpenTitle}
 						</h2>
 						<p className="mt-5 max-w-md leading-relaxed text-[#b9b2d6]">{t.home.firstOpenIntro}</p>
 					</div>
-					<ol className="space-y-6">
-						{t.home.firstOpenSteps.map((step, index) => (
-							<li key={step} className="flex gap-5">
-								<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/60 font-['Outfit'] font-semibold text-[#c9bdff]">
-									{index + 1}
-								</span>
-								<p className="pt-1.5 leading-relaxed text-paper/90">{step}</p>
-							</li>
-						))}
-					</ol>
+					<details className="group self-start rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 open:bg-white/[0.03]">
+						<summary className="flex cursor-pointer list-none items-center gap-2 font-semibold marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light">
+							<ChevronRight
+								className="h-4 w-4 shrink-0 text-[#c9bdff] transition-transform group-open:rotate-90"
+								aria-hidden="true"
+							/>
+							{t.home.stepsToggle}
+						</summary>
+						<ol className="mt-6 space-y-6">
+							{t.home.firstOpenSteps.map((step, index) => (
+								<li key={step} className="flex gap-5">
+									<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/60 font-['Outfit'] font-semibold text-[#c9bdff]">
+										{index + 1}
+									</span>
+									<p className="pt-1.5 leading-relaxed text-paper/90">{step}</p>
+								</li>
+							))}
+						</ol>
+					</details>
+				</div>
+				{/* The page ends on the win, not on the warning. */}
+				<div className="mx-auto max-w-6xl px-4 pb-20 sm:pb-28">
+					<div className="rounded-3xl border border-brand/25 bg-brand/[0.07] px-6 py-12 text-center sm:px-12 sm:py-16">
+						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
+							{t.home.closingTitle}
+						</h2>
+						<p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-[#b9b2d6]">
+							{t.home.requirements}
+						</p>
+						<div className="mt-8 flex justify-center">
+							<DownloadButton className="h-14 px-8 text-base">{t.home.download}</DownloadButton>
+						</div>
+					</div>
 				</div>
 			</section>
 		</main>

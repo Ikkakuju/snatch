@@ -46,6 +46,23 @@ struct SnatchApp: App {
 				Button("Settings…") { store.section = .settings }
 					.keyboardShortcut(",")
 			}
+			CommandMenu("Downloads") {
+				Button("Paste Link and Get") { Task { await store.pasteAndGet() } }
+					.keyboardShortcut("v", modifiers: [.command, .shift])
+				Button("Resume All") { store.resumeAll() }
+					.keyboardShortcut("r", modifiers: [.command, .shift])
+				Button("Open Downloads Folder") { NSWorkspace.shared.open(store.folder) }
+					.keyboardShortcut("o", modifiers: [.command, .shift])
+				Divider()
+				Button("All Downloads") { store.section = .all }
+					.keyboardShortcut("1", modifiers: .command)
+				Button("In Progress") { store.section = .inProgress }
+					.keyboardShortcut("2", modifiers: .command)
+				Button("Finished") { store.section = .finished }
+					.keyboardShortcut("3", modifiers: .command)
+				Button("Browse") { store.section = .browse }
+					.keyboardShortcut("4", modifiers: .command)
+			}
 		}
 	}
 }
@@ -158,25 +175,28 @@ struct DownloadsPage: View {
 	@Environment(Store.self) private var store
 	@Environment(Browser.self) private var browser
 	let section: SidebarItem
-	@State private var link = ""
 
 	private var jobs: [Job] { store.jobs.filter(section.includes) }
 
 	var body: some View {
 		ScrollView {
 			VStack(spacing: 24) {
-				LinkBar(link: $link)
+				LinkBar()
 				notices
 				if let info = store.pending {
-					ChoicePicker(info: info) { link = "" }
+					ChoicePicker(info: info) { store.linkDraft = "" }
 				}
 				if jobs.isEmpty {
-					ContentUnavailableView(
-						emptyTitle,
-						systemImage: "arrow.down.circle",
-						description: Text("Paste a video link above, or drop one on this window.")
-					)
-					.padding(.top, 60)
+					if store.installed.contains(.engine) {
+						ContentUnavailableView(
+							emptyTitle,
+							systemImage: "arrow.down.circle",
+							description: Text("Paste a video link above, or drop one on this window.")
+						)
+						.padding(.top, 60)
+					} else {
+						FirstRunGuide().padding(.top, 12)
+					}
 				} else {
 					grid
 				}
@@ -187,9 +207,15 @@ struct DownloadsPage: View {
 			.frame(maxWidth: .infinity)
 		}
 		.dropDestination(for: URL.self) { urls, _ in
-			guard let url = urls.first, store.canProbe else { return false }
-			link = url.absoluteString
-			Task { await store.probe(link) }
+			guard let url = urls.first else { return false }
+			let text = url.absoluteString
+			store.linkDraft = text
+			// Before yt-dlp exists a drop cannot resolve: keep it for the install to pick up.
+			if store.canProbe {
+				Task { await store.probe(text) }
+			} else {
+				store.deferredLink = text
+			}
 			return true
 		}
 	}
@@ -203,12 +229,7 @@ struct DownloadsPage: View {
 	}
 
 	@ViewBuilder private var notices: some View {
-		if !store.installed.contains(.engine) {
-			InstallCard(
-				component: .engine, title: "Install yt-dlp to get started",
-				detail: "Snatch reads video links with yt-dlp, the open-source downloader, plus QuickJS for YouTube. About 55 MB, checked against its SHA-256 before it runs."
-			)
-		} else if store.needsFFmpeg {
+		if store.needsFFmpeg {
 			InstallCard(
 				component: .ffmpeg, title: "Install ffmpeg to save videos",
 				detail: "ffmpeg joins video and audio into one MP4 and converts audio to MP3. About 56 MB, checked against its SHA-256. Waiting downloads start once it is ready."
@@ -260,14 +281,16 @@ struct DownloadsPage: View {
 
 struct LinkBar: View {
 	@Environment(Store.self) private var store
-	@Binding var link: String
+	@FocusState private var focused: Bool
 
 	var body: some View {
+		@Bindable var store = store
 		HStack(spacing: 12) {
 			Image(systemName: "link").foregroundStyle(.secondary)
-			TextField("Paste a video link, or drop one here", text: $link)
+			TextField("Paste a video link, or drop one here", text: $store.linkDraft)
 				.textFieldStyle(.plain)
 				.font(.title3)
+				.focused($focused)
 				.onSubmit(submit)
 			if store.probing {
 				ProgressView().controlSize(.small).padding(.trailing, 12)
@@ -282,8 +305,8 @@ struct LinkBar: View {
 				}
 				.buttonStyle(.plain)
 				.keyboardShortcut(.defaultAction)
-				.disabled(!store.canProbe || link.isEmpty)
-				.opacity(!store.canProbe || link.isEmpty ? 0.45 : 1)
+				.disabled(!store.canProbe || store.linkDraft.isEmpty)
+				.opacity(!store.canProbe || store.linkDraft.isEmpty ? 0.45 : 1)
 			}
 		}
 		.padding(.leading, 20)
@@ -292,13 +315,75 @@ struct LinkBar: View {
 		.background(Brand.surface, in: Capsule())
 		.overlay(Capsule().strokeBorder(Brand.stroke))
 		.frame(maxWidth: 760)
+		// The window opens ready to paste: the whole point of the app is one gesture.
+		.onAppear { focused = true }
+		.onChange(of: store.section) { _, _ in focused = true }
 	}
 
 	private func submit() {
-		guard store.canProbe, !link.isEmpty else { return }
-		Task { await store.probe(link) }
+		guard store.canProbe, !store.linkDraft.isEmpty else { return }
+		Task { await store.probe(store.linkDraft) }
 	}
 }
+
+/// The real first launch: nothing installed yet, so the empty state teaches the one
+/// thing it can do — install yt-dlp — instead of asking for a link it cannot resolve.
+struct FirstRunGuide: View {
+	@Environment(Store.self) private var store
+
+	var body: some View {
+		VStack(alignment: .leading, spacing: 16) {
+			VStack(alignment: .leading, spacing: 6) {
+				Text("Three steps to your first video").font(.title3.weight(.semibold))
+				Text(
+					"Snatch bundles nothing, so it downloads its tools on first use. About 55 MB for yt-dlp and QuickJS, checked against their SHA-256 before they run."
+				)
+				.font(.callout)
+				.foregroundStyle(.secondary)
+				.fixedSize(horizontal: false, vertical: true)
+			}
+			step(1, "Install yt-dlp.") {
+				if store.installing == .engine {
+					ProgressView().controlSize(.small)
+				} else {
+					Button("Install yt-dlp") { Task { await store.install(.engine) } }
+						.buttonStyle(.borderedProminent)
+						.disabled(store.installing != nil)
+				}
+			}
+			step(2, "Paste a video link above, or drop one on this window.") { EmptyView() }
+			step(3, "Pick a quality. ffmpeg asks to install the first time you save.") { EmptyView() }
+			if let error = store.installError {
+				Text(error)
+					.font(.callout)
+					.foregroundStyle(.red)
+					.textSelection(.enabled)
+			}
+		}
+		.padding(18)
+		.background(Brand.surface, in: RoundedRectangle(cornerRadius: 14))
+		.overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Brand.stroke))
+		.frame(maxWidth: 760, alignment: .leading)
+	}
+
+	private func step(
+		_ number: Int, _ text: LocalizedStringKey, @ViewBuilder accessory: () -> some View
+	) -> some View {
+		HStack(alignment: .center, spacing: 12) {
+			Text("\(number)")
+				.font(.caption.weight(.semibold).monospacedDigit())
+				.foregroundStyle(number == 1 ? Brand.light : .secondary)
+				.frame(width: 22, height: 22)
+				.background(Brand.accent.opacity(0.18), in: Circle())
+				.accessibilityHidden(true)
+			Text(text)
+				.foregroundStyle(number == 1 ? .primary : .secondary)
+				.frame(maxWidth: .infinity, alignment: .leading)
+			accessory()
+		}
+	}
+}
+
 
 /// Asks before downloading a tool: nothing is fetched without the user's go-ahead.
 struct InstallCard: View {
@@ -358,6 +443,7 @@ struct ChoicePicker: View {
 					}
 					.buttonStyle(.borderless)
 					.help("Close")
+					.accessibilityLabel(Text("Close"))
 				}
 				if let duration = info.duration {
 					Text(formatTime(duration)).font(.caption.monospacedDigit()).foregroundStyle(.secondary)
@@ -402,7 +488,9 @@ struct JobCard: View {
 				.aspectRatio(16 / 9, contentMode: .fit)
 				.overlay(alignment: .bottom) { progressBar }
 				.overlay(alignment: .topLeading) { badge }
-				.overlay(alignment: .topTrailing) { if hovering { actions } }
+				// Always drawn, never gated on hover: a hover-only control does not exist
+				// for the keyboard or VoiceOver, and pausing must not need a steady hand.
+				.overlay(alignment: .topTrailing) { actions.opacity(hovering ? 1 : 0.6) }
 				.overlay {
 					RoundedRectangle(cornerRadius: 10)
 						.strokeBorder(hovering ? Brand.accent.opacity(0.8) : Brand.stroke, lineWidth: hovering ? 2 : 1)
@@ -416,6 +504,19 @@ struct JobCard: View {
 					.lineLimit(1)
 			}
 			Text(job.title).font(.headline).lineLimit(2)
+			if case let .done(file) = job.state {
+				// The post-download question is always "where did it go", so answer it
+				// on the card instead of behind a hover icon.
+				Button { store.reveal(file) } label: {
+					Label(file.lastPathComponent, systemImage: "folder")
+						.font(.caption)
+						.lineLimit(1)
+						.frame(maxWidth: .infinity, alignment: .leading)
+				}
+				.buttonStyle(.plain)
+				.foregroundStyle(.secondary)
+				.help("Show in Finder")
+			}
 			if case let .failed(message) = job.state {
 				Text(message)
 					.font(.caption)
@@ -454,9 +555,10 @@ struct JobCard: View {
 	@ViewBuilder private var badge: some View {
 		switch job.state {
 		case .queued: Badge(text: "Waiting", symbol: "clock")
+		case .running: EmptyView()
 		case .paused: Badge(text: "Paused", symbol: "pause.fill")
 		case .failed: Badge(text: "Failed", symbol: "exclamationmark.triangle.fill")
-		default: EmptyView()
+		case .done: Badge(text: "Saved", symbol: "checkmark.circle.fill", tint: .green)
 		}
 	}
 
@@ -465,8 +567,10 @@ struct JobCard: View {
 			switch job.state {
 			case .queued, .running:
 				CircleButton(symbol: "pause.fill", help: "Pause") { store.pause(job.id) }
-			case .paused, .failed:
+			case .paused:
 				CircleButton(symbol: "arrow.clockwise", help: "Resume") { store.resume(job.id) }
+			case .failed:
+				CircleButton(symbol: "arrow.clockwise", help: "Try Again") { store.resume(job.id) }
 			case let .done(file):
 				CircleButton(symbol: "magnifyingglass", help: "Show in Finder") { store.reveal(file) }
 			}
@@ -479,8 +583,10 @@ struct JobCard: View {
 		switch job.state {
 		case .queued, .running:
 			Button("Pause") { store.pause(job.id) }
-		case .paused, .failed:
+		case .paused:
 			Button("Resume") { store.resume(job.id) }
+		case .failed:
+			Button("Try Again") { store.resume(job.id) }
 		case let .done(file):
 			Button("Open") { store.open(file) }
 			Button("Show in Finder") { store.reveal(file) }
@@ -507,7 +613,9 @@ struct JobCard: View {
 			return parts.joined(separator: " · ")
 		case .paused: return job.progress?.fraction.map(percent) ?? ""
 		case .failed: return ""
-		case .done: return job.duration.map(formatTime) ?? String(localized: "Done")
+		case .done:
+			guard let bytes = job.savedBytes else { return String(localized: "Saved") }
+			return formatBytes(Double(bytes)) + " · " + String(localized: "Saved")
 		}
 	}
 
@@ -532,10 +640,12 @@ struct Chip: View {
 struct Badge: View {
 	let text: LocalizedStringKey
 	let symbol: String
+	var tint: Color = .primary
 
 	var body: some View {
 		Label(text, systemImage: symbol)
 			.font(.caption.weight(.semibold))
+			.foregroundStyle(tint)
 			.padding(.horizontal, 8)
 			.padding(.vertical, 4)
 			.background(.ultraThinMaterial, in: Capsule())
@@ -554,9 +664,12 @@ struct CircleButton: View {
 				.font(.system(size: 11, weight: .bold))
 				.frame(width: 26, height: 26)
 				.background(.ultraThinMaterial, in: Circle())
+				.contentShape(Circle())
 		}
 		.buttonStyle(.plain)
 		.help(help)
+		// .help is a tooltip; VoiceOver needs a label of its own.
+		.accessibilityLabel(Text(help))
 	}
 }
 

@@ -31,6 +31,9 @@ export const es: Messages = {
 			"Snatch guarda en tu Mac vídeos de YouTube, X, TikTok, Instagram, Bilibili y otros 1800 sitios, en MP4 o MP3. Cualquier otra página, ábrela en el navegador integrado y guarda lo que reproduce.",
 		download: "Descargar para Mac",
 		requirements: "Gratis, para macOS 14 o posterior con Apple silicon.",
+		unsignedNote: "Compilación sin firmar: macOS te pide confirmarlo una vez.",
+		closingTitle: "Pega tu primer enlace.",
+		stepsToggle: "Ver los pasos",
 		source: "Código fuente en GitHub",
 		waysTitle: "Dos formas de guardar un vídeo",
 		ways: [

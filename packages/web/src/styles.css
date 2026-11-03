@@ -156,6 +156,26 @@ body {
 	}
 }
 
+/* Japanese and Chinese have no spaces between words: `text-balance` splits them
+   mid-glyph, and Latin display tracking squeezes the glyphs until they touch. Each
+   heading keeps its authored break and a scale that suits denser characters. */
+:lang(ja) :is(h1, h2),
+:lang(zh) :is(h1, h2) {
+	text-wrap: wrap;
+	letter-spacing: -0.01em;
+	line-break: strict;
+}
+:lang(ja) h1,
+:lang(zh) h1 {
+	font-size: clamp(2.25rem, 7vw, 3.25rem);
+	line-height: 1.15;
+}
+:lang(ja) h2,
+:lang(zh) h2 {
+	font-size: clamp(1.625rem, 5vw, 2.5rem);
+	line-height: 1.25;
+}
+
 /* The hero's backdrop: Snatch's own motifs (a link, a play button, a download into a
    tray, a pill) tiled faintly in lilac, fading out from the middle. */
 .hero-pattern {
