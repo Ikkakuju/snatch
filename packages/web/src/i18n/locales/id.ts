@@ -4,6 +4,12 @@ export const id: Messages = {
 	language: {
 		label: "Bahasa",
 	},
+	nav: {
+		features: "Cara kerja",
+		setup: "Peluncuran pertama",
+		download: "Unduh",
+		menu: "Menu",
+	},
 	errors: {
 		generic: "Terjadi kesalahan. Coba lagi.",
 	},
@@ -19,43 +25,60 @@ export const id: Messages = {
 			"Snatch adalah aplikasi Mac gratis dan open source yang mengunduh video dari YouTube, X, TikTok, Instagram, Bilibili, dan ribuan situs lain sebagai MP4 atau MP3.",
 	},
 	home: {
-		h1Suffix: "— pengunduh video gratis untuk Mac",
-		tagline: "Unduh video apa pun di Mac Anda.",
+		whatsNew: "Baru: browser bawaan",
+		tagline: "Tempel tautan. Simpan videonya.",
 		subtitle:
-			"Tempel tautan dari YouTube, X, TikTok, Instagram, Bilibili, atau ribuan situs lain, dan Snatch menyimpannya sebagai MP4 atau MP3. Gratis dan open source.",
+			"Snatch menyimpan video dari YouTube, X, TikTok, Instagram, Bilibili, dan 1.800 situs lainnya ke Mac Anda, sebagai MP4 atau MP3. Untuk halaman lain, buka di browser bawaan dan simpan apa yang diputarnya.",
 		download: "Unduh untuk Mac",
-		requirements: "macOS 14 atau lebih baru · Apple silicon",
+		requirements: "Gratis, untuk macOS 14 atau lebih baru di Apple silicon.",
 		source: "Kode sumber di GitHub",
-		featuresTitle: "Yang bisa dilakukan Snatch",
+		waysTitle: "Dua cara menyimpan video",
+		ways: [
+			{
+				title: "Tempel tautan",
+				body: "Untuk YouTube, X, TikTok, Instagram, Bilibili, dan situs lain yang dikenal yt-dlp. Snatch menampilkan setiap resolusi video yang tersedia, plus MP3.",
+			},
+			{
+				title: "Buka halamannya",
+				body: "Untuk semua yang lain. Buka halamannya di dalam Snatch dan putar videonya. Snatch menemukan stream-nya dan menyimpannya, dengan akun yang sedang Anda pakai.",
+			},
+		],
+		featuresTitle: "Detailnya",
 		features: [
 			{
-				title: "Ribuan situs",
-				body: "Dibangun di atas yt-dlp, yang mengenali lebih dari 1.800 situs dan memperbarui dirinya sendiri saat situs berubah.",
+				title: "MP4 yang bisa diputar di mana saja",
+				body: "Video disimpan sebagai H.264 dan AAC, jadi bisa dibuka di QuickTime dan iPhone. Atau simpan audionya saja, sebagai MP3.",
 			},
 			{
-				title: "Kualitas sesuai pilihan",
-				body: "Semua resolusi yang tersedia, disimpan sebagai MP4 yang bisa diputar di mana saja, atau audionya saja sebagai MP3.",
+				title: "Jeda, keluar, lanjutkan nanti",
+				body: "Unduhan berjalan dua sekaligus. Jeda salah satunya atau keluar dari Snatch, dan unduhan berlanjut dari titik terakhir.",
 			},
 			{
-				title: "Jeda dan lanjutkan",
-				body: "Antrekan tautan sebanyak yang Anda mau. Jeda unduhan mana pun dan lanjutkan nanti, bahkan setelah aplikasi ditutup.",
+				title: "Akun Anda",
+				body: "Video yang hanya bisa dilihat akun Anda juga bisa diunduh: masuk di browser bawaan, atau izinkan Snatch memakai Safari, Chrome, atau Firefox.",
 			},
 			{
-				title: "Video yang perlu masuk akun",
-				body: "Izinkan Snatch memakai cookie Safari, Chrome, atau Firefox Anda untuk video yang hanya bisa dilihat akun Anda.",
+				title: "Tidak ada yang keluar dari Mac Anda",
+				body: "Video langsung dari situs ke folder Unduhan Anda. Tanpa server Snatch, tanpa akun, tanpa pelacakan.",
 			},
 			{
-				title: "Berjalan di Mac Anda",
-				body: "Unduhan langsung dari situs ke folder Unduhan Anda. Tanpa server perantara, tidak ada yang diunggah.",
+				title: "Sumber terbuka",
+				body: "Berlisensi MIT, di GitHub. yt-dlp, mesin di baliknya, diperbarui setiap hari mengikuti perubahan situs.",
 			},
 			{
-				title: "Gratis dan open source",
-				body: "Berlisensi MIT. Tanpa akun, tanpa iklan, tanpa pelacakan di aplikasi.",
+				title: "Yang tidak bisa disimpan",
+				body: "Stream yang dilindungi dari penyalinan, seperti Netflix atau Disney+, tetap terenkripsi. Snatch memberi tahu jika sebuah halaman memakainya.",
 			},
 		],
 		firstOpenTitle: "Membuka Snatch untuk pertama kali",
-		firstOpenBody:
-			"Snatch gratis dan tidak dinotarisasi oleh Apple, jadi macOS memblokir peluncuran pertama. Seret Snatch ke Aplikasi dan buka sekali, lalu buka Pengaturan Sistem → Privasi & Keamanan dan klik “Tetap Buka” (“Open Anyway”). Setelah itu Snatch meminta izin memasang yt-dlp, lalu ffmpeg saat Anda pertama kali menyimpan video, total sekitar 110 MB.",
+		firstOpenIntro:
+			"Snatch gratis dan tidak dinotarisasi oleh Apple, jadi macOS meminta Anda mengonfirmasinya sekali.",
+		firstOpenSteps: [
+			"Buka Snatch.dmg dan seret Snatch ke Aplikasi.",
+			"Buka Snatch. Saat macOS bilang tidak bisa memeriksanya, klik “Selesai”.",
+			"Di Pengaturan Sistem → Privasi & Keamanan, klik “Tetap Buka”.",
+			"Snatch meminta izin memasang yt-dlp, sekitar 55 MB. Saat pertama kali menyimpan video, Snatch juga meminta ffmpeg.",
+		],
 		legal: "Unduh hanya video yang berhak Anda simpan, dan patuhi ketentuan setiap situs.",
 	},
 };

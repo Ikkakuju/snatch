@@ -1,17 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-	CirclePause,
-	CodeXml,
-	Download,
-	Globe,
-	KeyRound,
-	type LucideIcon,
-	MonitorDown,
-	ShieldAlert,
-	SlidersHorizontal,
-} from "lucide-react";
+import { ChevronRight, Github, Globe } from "lucide-react";
 import { useEffect } from "react";
-import { Logo } from "../components/Logo";
+import { BrowseDemo, LinkDemo } from "../components/Demos";
+import { DownloadButton } from "../components/DownloadButton";
 import { DOWNLOAD_URL, REPO_URL } from "../config";
 import { en } from "../i18n";
 import { useI18n } from "../i18n/context";
@@ -32,16 +23,6 @@ const softwareApplication = JSON.stringify({
 	featureList: en.home.features.map((feature) => feature.title),
 });
 
-/** One icon per entry of `home.features`, in the same order. */
-const FEATURE_ICONS: LucideIcon[] = [
-	Globe,
-	SlidersHorizontal,
-	CirclePause,
-	KeyRound,
-	MonitorDown,
-	CodeXml,
-];
-
 export const Route = createFileRoute("/")({
 	head: () => ({
 		...pageHead({ path: "/", title: en.seo.homeTitle, description: en.seo.homeDescription }),
@@ -57,78 +38,106 @@ function Home() {
 	}, [t.seo.homeTitle]);
 
 	return (
-		<div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
-			<div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-				<div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-purple-600/20 blur-[120px]" />
-				<div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px]" />
-			</div>
+		<main className="relative isolate text-paper">
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[1100px] bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(90,58,255,0.38),transparent_70%)]"
+			/>
+			<div
+				aria-hidden="true"
+				className="hero-pattern pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]"
+			/>
 
-			<main className="relative z-10 container mx-auto px-4 py-20 max-w-5xl space-y-20">
-				<section className="text-center space-y-6">
-					<h1>
-						<Logo />
-						<span className="sr-only"> {t.home.h1Suffix}</span>
-					</h1>
-					<p className="text-3xl sm:text-4xl font-bold text-gray-100">{t.home.tagline}</p>
-					<p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-						{t.home.subtitle}
-					</p>
-					<div className="flex flex-col items-center gap-3 pt-2">
-						<a
-							href={DOWNLOAD_URL}
-							className="inline-flex items-center gap-2.5 rounded-xl bg-purple-600 px-6 py-3.5 text-lg font-semibold text-white transition-colors hover:bg-purple-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-300"
-						>
-							<Download className="h-5 w-5" aria-hidden="true" />
-							{t.home.download}
-						</a>
-						<p className="text-sm text-gray-500">{t.home.requirements}</p>
-						<a
-							href={REPO_URL}
-							className="inline-flex items-center gap-1.5 rounded text-sm text-gray-400 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
-						>
-							<CodeXml className="h-4 w-4" aria-hidden="true" />
-							{t.home.source}
-						</a>
+			<section className="mx-auto max-w-5xl px-4 pt-20 pb-24 text-center sm:pt-28 sm:pb-32">
+				<a
+					href={`${REPO_URL}/releases/latest`}
+					className="mb-8 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 py-1.5 pr-3 pl-1.5 text-sm text-[#c9bdff] transition-colors hover:border-brand/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+				>
+					<span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
+						<Globe className="h-3.5 w-3.5" aria-hidden="true" />
+					</span>
+					{t.home.whatsNew}
+					<ChevronRight className="h-4 w-4" aria-hidden="true" />
+				</a>
+				<h1 className="mx-auto max-w-4xl font-['Outfit'] text-[3.25rem] leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-7xl lg:text-[5.5rem]">
+					{t.home.tagline}
+				</h1>
+				<p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-pretty text-[#b9b2d6] sm:text-lg">
+					{t.home.subtitle}
+				</p>
+				<div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
+					<DownloadButton className="h-14 w-full px-8 text-base sm:w-auto">
+						{t.home.download}
+					</DownloadButton>
+					<a
+						href={REPO_URL}
+						className="inline-flex items-center gap-2 text-sm text-[#b9b2d6] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+					>
+						<Github className="h-4 w-4" aria-hidden="true" />
+						{t.home.source}
+					</a>
+				</div>
+				<p className="mt-5 text-sm text-[#8f86b8]">{t.home.requirements}</p>
+				<div className="mt-16 sm:mt-20">
+					<LinkDemo />
+				</div>
+			</section>
+
+			<section id="features" className="scroll-mt-16 border-t border-white/[0.08]">
+				<div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
+					<div>
+						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
+							{t.home.waysTitle}
+						</h2>
+						<div className="mt-10 space-y-8">
+							{t.home.ways.map((way) => (
+								<div key={way.title} className="border-l-2 border-brand pl-5">
+									<h3 className="text-lg font-semibold">{way.title}</h3>
+									<p className="mt-2 max-w-md leading-relaxed text-[#b9b2d6]">{way.body}</p>
+								</div>
+							))}
+						</div>
 					</div>
-				</section>
+					<BrowseDemo />
+				</div>
+			</section>
 
-				<section aria-labelledby="features" className="space-y-8">
-					<h2 id="features" className="text-center text-2xl font-bold text-gray-100">
+			<section className="border-t border-white/[0.08]">
+				<div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
+					<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
 						{t.home.featuresTitle}
 					</h2>
-					<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-						{t.home.features.map((feature, index) => {
-							const Icon = FEATURE_ICONS[index] ?? Globe;
-							return (
-								<li
-									key={feature.title}
-									className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 space-y-2"
-								>
-									<Icon className="h-6 w-6 text-purple-400" aria-hidden="true" />
-									<h3 className="font-semibold text-gray-100">{feature.title}</h3>
-									<p className="text-sm text-gray-400 leading-relaxed">{feature.body}</p>
-								</li>
-							);
-						})}
-					</ul>
-				</section>
+					<dl className="mt-12 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+						{t.home.features.map((feature) => (
+							<div key={feature.title}>
+								<dt className="font-semibold">{feature.title}</dt>
+								<dd className="mt-2 max-w-sm leading-relaxed text-[#b9b2d6]">{feature.body}</dd>
+							</div>
+						))}
+					</dl>
+				</div>
+			</section>
 
-				<section
-					aria-labelledby="first-open"
-					className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 space-y-2"
-				>
-					<h2
-						id="first-open"
-						className="flex items-center gap-2 text-lg font-semibold text-amber-200"
-					>
-						<ShieldAlert className="h-5 w-5" aria-hidden="true" />
-						{t.home.firstOpenTitle}
-					</h2>
-					<p className="text-sm text-gray-300 leading-relaxed">{t.home.firstOpenBody}</p>
-				</section>
-
-				<footer className="text-center text-xs text-gray-500">{t.home.legal}</footer>
-			</main>
-		</div>
+			<section id="setup" className="scroll-mt-16 border-t border-white/[0.08]">
+				<div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
+					<div>
+						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
+							{t.home.firstOpenTitle}
+						</h2>
+						<p className="mt-5 max-w-md leading-relaxed text-[#b9b2d6]">{t.home.firstOpenIntro}</p>
+					</div>
+					<ol className="space-y-6">
+						{t.home.firstOpenSteps.map((step, index) => (
+							<li key={step} className="flex gap-5">
+								<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/60 font-['Outfit'] font-semibold text-[#c9bdff]">
+									{index + 1}
+								</span>
+								<p className="pt-1.5 leading-relaxed text-paper/90">{step}</p>
+							</li>
+						))}
+					</ol>
+				</div>
+			</section>
+		</main>
 	);
 }
