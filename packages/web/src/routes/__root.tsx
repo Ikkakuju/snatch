@@ -1,14 +1,15 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { ErrorBoundary } from "../components/ErrorBoundary";
-import { LanguageMenu } from "../components/LanguageMenu";
+import { SiteFooter } from "../components/SiteFooter";
+import { SiteHeader } from "../components/SiteHeader";
 import { I18nProvider, useI18n } from "../i18n/context";
 import { SITE_URL } from "../seo";
 import appCss from "../styles.css?url";
 
 const CLARITY_ID = import.meta.env.VITE_CLARITY_ID ?? "";
 const ogImage = SITE_URL ? `${SITE_URL}/og.png` : undefined;
-const OG_ALT = "Snatch — free video downloader for Mac";
+const OG_ALT = "Snatch — download any video on your Mac";
 
 const clarity = CLARITY_ID
 	? `(function (c, l, a, r, i, t, y) {
@@ -25,7 +26,7 @@ export const Route = createRootRoute({
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
 			{ name: "robots", content: "index, follow, max-image-preview:large" },
 			{ name: "yandex-verification", content: "3665309d16ecf0b4" },
-			{ name: "theme-color", content: "#7c3aed" },
+			{ name: "theme-color", content: "#0a0718" },
 			{ property: "og:type", content: "website" },
 			{ property: "og:site_name", content: "snatchvideos" },
 			{ property: "og:locale", content: "en_US" },
@@ -58,8 +59,9 @@ export const Route = createRootRoute({
 	component: () => (
 		<I18nProvider>
 			<LocalizedErrorBoundary>
-				<LanguageMenu />
+				<SiteHeader />
 				<Outlet />
+				<SiteFooter />
 			</LocalizedErrorBoundary>
 		</I18nProvider>
 	),

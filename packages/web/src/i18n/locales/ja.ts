@@ -4,6 +4,12 @@ export const ja: Messages = {
 	language: {
 		label: "言語",
 	},
+	nav: {
+		features: "使い方",
+		setup: "初回起動",
+		download: "ダウンロード",
+		menu: "メニュー",
+	},
 	errors: {
 		generic: "問題が発生しました。もう一度お試しください。",
 	},
@@ -19,43 +25,59 @@ export const ja: Messages = {
 			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliなど数千のサイトから動画をMP4またはMP3で保存できる、無料・オープンソースのMacアプリです。",
 	},
 	home: {
-		h1Suffix: "— Mac用の無料動画ダウンローダー",
-		tagline: "どんな動画もMacに保存。",
+		tagline: "リンクを貼るだけで、動画を手元に。",
 		subtitle:
-			"YouTube、X、TikTok、Instagram、Bilibiliなど数千のサイトのリンクを貼り付けるだけで、SnatchがMP4またはMP3で保存します。無料でオープンソースです。",
+			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800のサイトの動画を、MP4またはMP3でMacに保存します。それ以外のページも、内蔵ブラウザで開けば再生中の動画を保存できます。",
 		download: "Mac版をダウンロード",
-		requirements: "macOS 14以降 · Appleシリコン搭載Mac",
+		requirements: "無料。Apple silicon搭載のmacOS 14以降に対応。",
 		source: "GitHubでソースコードを見る",
-		featuresTitle: "Snatchでできること",
+		waysTitle: "動画を保存する2つの方法",
+		ways: [
+			{
+				title: "リンクを貼る",
+				body: "YouTube、X、TikTok、Instagram、Bilibiliなど、yt-dlpが対応するサイト向け。動画のすべての解像度とMP3から選べます。",
+			},
+			{
+				title: "ページを開く",
+				body: "それ以外のサイト向け。Snatchの中でページを開いて動画を再生すると、Snatchがストリームを見つけて保存します。ログイン状態もそのままです。",
+			},
+		],
+		featuresTitle: "詳しく",
 		features: [
 			{
-				title: "数千のサイトに対応",
-				body: "1,800以上のサイトに対応するyt-dlpを採用。サイトの仕様が変わっても自動でアップデートされます。",
+				title: "どこでも再生できるMP4",
+				body: "動画はH.264とAACで保存されるので、QuickTimeでもiPhoneでも開けます。音声だけをMP3で保存することもできます。",
 			},
 			{
-				title: "画質を自由に選べる",
-				body: "動画が提供するすべての解像度から選んで、どこでも再生できるMP4で保存。音声だけをMP3で保存することもできます。",
+				title: "一時停止しても、終了しても続きから",
+				body: "ダウンロードは2本ずつ進みます。一時停止しても、Snatchを終了しても、止まったところから再開します。",
 			},
 			{
-				title: "一時停止と再開",
-				body: "リンクはいくつでもキューに追加できます。ダウンロードはいつでも一時停止でき、アプリを終了した後でも再開できます。",
+				title: "ログインしたまま",
+				body: "自分のアカウントでしか見られない動画もダウンロードできます。内蔵ブラウザでログインするか、SnatchにSafari、Chrome、Firefoxのログイン情報を使わせてください。",
 			},
 			{
-				title: "ログインが必要な動画にも",
-				body: "Safari、Chrome、FirefoxのCookieをSnatchに使わせれば、自分のアカウントでしか見られない動画も保存できます。",
+				title: "Macの外には何も出ません",
+				body: "動画はサイトから「ダウンロード」フォルダへ直接保存されます。Snatchのサーバーも、アカウントも、トラッキングもありません。",
 			},
 			{
-				title: "Mac上で完結",
-				body: "サイトから「ダウンロード」フォルダへ直接保存。間にサーバを挟まず、何もアップロードしません。",
+				title: "オープンソース",
+				body: "MITライセンスでGitHubに公開しています。中で動くyt-dlpは、サイトの変更に合わせて毎日更新されます。",
 			},
 			{
-				title: "無料でオープンソース",
-				body: "MITライセンス。アカウント不要、広告なし、アプリ内のトラッキングもありません。",
+				title: "保存できないもの",
+				body: "NetflixやDisney+などのコピー防止されたストリームは暗号化されたままです。ページがそれを使っているときは、Snatchがお知らせします。",
 			},
 		],
 		firstOpenTitle: "Snatchを初めて開くとき",
-		firstOpenBody:
-			"Snatchは無料で、Appleの公証を受けていないため、初回起動時にmacOSがブロックします。Snatchを「アプリケーション」にドラッグして一度開いてから、システム設定 → プライバシーとセキュリティで「このまま開く」をクリックしてください。その後、Snatchがyt-dlpのインストールを、最初に動画を保存するときにffmpegのインストールを確認します（合計約110 MB）。",
+		firstOpenIntro:
+			"Snatchは無料で、Appleの公証を受けていないため、最初に一度だけmacOSで確認が必要です。",
+		firstOpenSteps: [
+			"Snatch.dmgを開き、Snatchを「アプリケーション」にドラッグします。",
+			"Snatchを開きます。macOSが確認できないと表示したら、「完了」をクリックします。",
+			"システム設定 → プライバシーとセキュリティで「このまま開く」をクリックします。",
+			"Snatchがyt-dlp（約55 MB）のインストールを確認します。最初に動画を保存するときは、ffmpegのインストールも確認します。",
+		],
 		legal: "保存する権利のある動画だけをダウンロードし、各サイトの利用規約を守ってください。",
 	},
 };

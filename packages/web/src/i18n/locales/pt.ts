@@ -4,6 +4,12 @@ export const pt: Messages = {
 	language: {
 		label: "Idioma",
 	},
+	nav: {
+		features: "Como funciona",
+		setup: "Primeira execução",
+		download: "Baixar",
+		menu: "Menu",
+	},
 	errors: {
 		generic: "Algo deu errado. Tente novamente.",
 	},
@@ -19,43 +25,59 @@ export const pt: Messages = {
 			"Snatch é um app gratuito e de código aberto para Mac que baixa vídeos do YouTube, X, TikTok, Instagram, Bilibili e milhares de outros sites em MP4 ou MP3.",
 	},
 	home: {
-		h1Suffix: "— baixador de vídeos grátis para Mac",
-		tagline: "Baixe qualquer vídeo no seu Mac.",
+		tagline: "Cole um link. Fique com o vídeo.",
 		subtitle:
-			"Cole um link do YouTube, X, TikTok, Instagram, Bilibili ou de milhares de outros sites, e o Snatch salva em MP4 ou MP3. Grátis e de código aberto.",
+			"O Snatch salva no seu Mac vídeos do YouTube, X, TikTok, Instagram, Bilibili e de outros 1.800 sites, em MP4 ou MP3. Qualquer outra página, abra no navegador integrado e salve o que ela reproduz.",
 		download: "Baixar para Mac",
-		requirements: "macOS 14 ou posterior · Apple silicon",
+		requirements: "Grátis, para macOS 14 ou posterior com Apple silicon.",
 		source: "Código-fonte no GitHub",
-		featuresTitle: "O que o Snatch faz",
+		waysTitle: "Duas formas de salvar um vídeo",
+		ways: [
+			{
+				title: "Cole um link",
+				body: "Para YouTube, X, TikTok, Instagram, Bilibili e os outros sites que o yt-dlp conhece. O Snatch lista todas as resoluções do vídeo, além de MP3.",
+			},
+			{
+				title: "Abra a página",
+				body: "Para todo o resto. Abra a página dentro do Snatch e reproduza o vídeo. O Snatch detecta o stream e salva, com a sua conta já conectada.",
+			},
+		],
+		featuresTitle: "Os detalhes",
 		features: [
 			{
-				title: "Milhares de sites",
-				body: "Feito com o yt-dlp, que reconhece mais de 1.800 sites e se atualiza sozinho quando eles mudam.",
+				title: "MP4 que toca em qualquer lugar",
+				body: "O vídeo é salvo em H.264 e AAC, então abre no QuickTime e no iPhone. Ou fique só com o áudio, em MP3.",
 			},
 			{
-				title: "Você escolhe a qualidade",
-				body: "Todas as resoluções que o vídeo oferece, em um MP4 que roda em qualquer lugar, ou só o áudio em MP3.",
+				title: "Pause, feche, continue depois",
+				body: "Os downloads rodam dois de cada vez. Pause um ou feche o Snatch, e ele continua de onde parou.",
 			},
 			{
-				title: "Pause e retome",
-				body: "Coloque quantos links quiser na fila. Pause qualquer download e continue depois, mesmo após fechar o app.",
+				title: "Suas contas",
+				body: "Vídeos que só a sua conta vê também são baixados: entre no navegador integrado ou deixe o Snatch usar o Safari, Chrome ou Firefox.",
 			},
 			{
-				title: "Vídeos que exigem login",
-				body: "Deixe o Snatch usar os cookies do Safari, Chrome ou Firefox para vídeos que só a sua conta pode ver.",
+				title: "Nada sai do seu Mac",
+				body: "O vídeo vai direto do site para a sua pasta Downloads. Sem servidor do Snatch, sem conta, sem rastreamento.",
 			},
 			{
-				title: "Roda no seu Mac",
-				body: "Os downloads vão direto do site para a sua pasta Downloads. Sem servidor no meio, nada é enviado.",
+				title: "Código aberto",
+				body: "Licença MIT, no GitHub. O yt-dlp, o motor por trás, é atualizado todo dia conforme os sites mudam.",
 			},
 			{
-				title: "Grátis e de código aberto",
-				body: "Licença MIT. Sem conta, sem anúncios, sem rastreamento no app.",
+				title: "O que ele não salva",
+				body: "Streams com proteção contra cópia, como Netflix ou Disney+, continuam criptografados. O Snatch avisa quando uma página usa esse tipo de proteção.",
 			},
 		],
 		firstOpenTitle: "Abrindo o Snatch pela primeira vez",
-		firstOpenBody:
-			"O Snatch é grátis e não é notarizado pela Apple, por isso o macOS bloqueia a primeira abertura. Arraste o Snatch para Aplicativos e abra-o uma vez; depois vá em Ajustes do Sistema → Privacidade e Segurança e clique em “Abrir Mesmo Assim”. Depois, o Snatch pede para instalar o yt-dlp e, ao salvar o primeiro vídeo, o ffmpeg: cerca de 110 MB no total.",
+		firstOpenIntro:
+			"O Snatch é grátis e não é notarizado pela Apple, por isso o macOS pede que você confirme uma vez.",
+		firstOpenSteps: [
+			"Abra o Snatch.dmg e arraste o Snatch para Aplicativos.",
+			"Abra o Snatch. Quando o macOS disser que não consegue verificá-lo, clique em “OK”.",
+			"Em Ajustes do Sistema → Privacidade e Segurança, clique em “Abrir Mesmo Assim”.",
+			"O Snatch pede para instalar o yt-dlp, cerca de 55 MB. Ao salvar o primeiro vídeo, pede também o ffmpeg.",
+		],
 		legal:
 			"Baixe apenas vídeos que você tem o direito de guardar e respeite os termos de cada site.",
 	},

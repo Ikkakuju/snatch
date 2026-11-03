@@ -8,6 +8,7 @@ export function LanguageMenu() {
 	const { locale, t, setLocale } = useI18n();
 	const [open, setOpen] = useState(false);
 	const rootRef = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLButtonElement>(null);
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	// `role="menu"` promises arrow-key navigation; without this the roles lie to AT.
@@ -33,7 +34,9 @@ export function LanguageMenu() {
 			if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
 		};
 		const closeOnEscape = (event: KeyboardEvent) => {
-			if (event.key === "Escape") setOpen(false);
+			if (event.key !== "Escape") return;
+			setOpen(false);
+			triggerRef.current?.focus();
 		};
 		document.addEventListener("pointerdown", closeOnOutside);
 		document.addEventListener("keydown", closeOnEscape);
@@ -43,18 +46,22 @@ export function LanguageMenu() {
 		};
 	}, [open]);
 
+	// `role="menu"` promises focus inside it: land on the current language.
+	useEffect(() => {
+		if (open) menuRef.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus();
+	}, [open]);
+
 	return (
-		<div
-			ref={rootRef}
-			className="fixed top-4 right-4 z-30 pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)]"
-		>
+		<div ref={rootRef} className="relative flex h-16 items-center">
 			<button
+				ref={triggerRef}
 				type="button"
 				aria-haspopup="menu"
 				aria-expanded={open}
-				aria-label={t.language.label}
+				aria-controls={open ? "language-menu" : undefined}
+				aria-label={`${t.language.label}: ${LOCALE_LABELS[locale]}`}
 				onClick={() => setOpen((current) => !current)}
-				className="flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-2 text-xs font-medium text-gray-300 backdrop-blur transition-colors hover:border-white/25 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+				className="flex h-11 items-center gap-2 rounded-md px-2.5 text-xs font-medium text-gray-400 transition-colors hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
 			>
 				<Languages className="h-4 w-4" aria-hidden="true" />
 				<span className="hidden sm:inline">{LOCALE_LABELS[locale]}</span>
@@ -63,10 +70,11 @@ export function LanguageMenu() {
 			{open && (
 				<div
 					ref={menuRef}
+					id="language-menu"
 					role="menu"
 					aria-label={t.language.label}
 					onKeyDown={handleMenuKeys}
-					className="absolute right-0 mt-2 grid w-[min(92vw,26rem)] grid-cols-2 gap-1 rounded-2xl border border-white/10 bg-zinc-950/95 p-2 shadow-2xl backdrop-blur"
+					className="fixed inset-x-2 top-[4.25rem] z-50 grid max-h-[calc(100dvh-5rem)] grid-cols-2 gap-0.5 overflow-y-auto rounded-lg border border-white/10 bg-[#14111f] p-1.5 shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:max-h-[70vh] sm:w-[min(92vw,26rem)]"
 				>
 					{LOCALE_CODES.map((code) => (
 						<button
@@ -78,8 +86,9 @@ export function LanguageMenu() {
 							onClick={() => {
 								setLocale(code);
 								setOpen(false);
+								triggerRef.current?.focus();
 							}}
-							className={`w-full rounded-xl px-4 py-3 text-left text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
+							className={`w-full rounded-md px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
 								code === locale
 									? "font-semibold text-white"
 									: "text-gray-400 hover:bg-white/5 hover:text-white"
