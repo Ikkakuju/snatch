@@ -45,8 +45,8 @@ export function SiteHeader() {
 
 				<div className="ml-auto flex items-center gap-1">
 					<LanguageMenu />
-					<DownloadButton label={t.nav.download} className="h-10 px-4 text-sm">
-						<span className="hidden sm:inline">{t.nav.download}</span>
+					<DownloadButton label={t.nav.download} className="h-11 px-4 text-sm">
+						<span className="whitespace-nowrap">{t.nav.download}</span>
 					</DownloadButton>
 					<MobileMenu />
 				</div>

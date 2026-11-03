@@ -31,6 +31,9 @@ export const pt: Messages = {
 			"O Snatch salva no seu Mac vídeos do YouTube, X, TikTok, Instagram, Bilibili e de outros 1.800 sites, em MP4 ou MP3. Qualquer outra página, abra no navegador integrado e salve o que ela reproduz.",
 		download: "Baixar para Mac",
 		requirements: "Grátis, para macOS 14 ou posterior com Apple silicon.",
+		unsignedNote: "Versão não assinada: o macOS pede uma confirmação.",
+		closingTitle: "Cole o seu primeiro link.",
+		stepsToggle: "Ver os passos",
 		source: "Código-fonte no GitHub",
 		waysTitle: "Duas formas de salvar um vídeo",
 		ways: [

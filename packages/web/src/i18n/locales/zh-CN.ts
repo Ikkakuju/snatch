@@ -26,11 +26,14 @@ export const zhCN: Messages = {
 	},
 	home: {
 		whatsNew: "新功能：内置浏览器",
-		tagline: "粘贴链接，留下视频。",
+		tagline: "粘贴链接，\n留下视频。",
 		subtitle:
 			"Snatch 能把 YouTube、X、TikTok、Instagram、Bilibili 以及其他 1,800 个网站的视频保存到你的 Mac 上，格式为 MP4 或 MP3。其他网页可以在内置浏览器中打开，保存正在播放的视频。",
 		download: "下载 Mac 版",
 		requirements: "免费，适用于搭载 Apple silicon 的 macOS 14 或更高版本。",
+		unsignedNote: "未签名的版本，macOS 会提示确认一次。",
+		closingTitle: "粘贴你的第一个链接。",
+		stepsToggle: "查看步骤",
 		source: "在 GitHub 上查看源代码",
 		waysTitle: "两种保存视频的方式",
 		ways: [

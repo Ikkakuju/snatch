@@ -31,6 +31,9 @@ export const id: Messages = {
 			"Snatch menyimpan video dari YouTube, X, TikTok, Instagram, Bilibili, dan 1.800 situs lainnya ke Mac Anda, sebagai MP4 atau MP3. Untuk halaman lain, buka di browser bawaan dan simpan apa yang diputarnya.",
 		download: "Unduh untuk Mac",
 		requirements: "Gratis, untuk macOS 14 atau lebih baru di Apple silicon.",
+		unsignedNote: "Build tanpa tanda tangan: macOS meminta konfirmasi sekali.",
+		closingTitle: "Tempel tautan pertama Anda.",
+		stepsToggle: "Lihat langkah-langkahnya",
 		source: "Kode sumber di GitHub",
 		waysTitle: "Dua cara menyimpan video",
 		ways: [

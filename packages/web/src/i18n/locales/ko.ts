@@ -31,6 +31,9 @@ export const ko: Messages = {
 			"Snatch는 YouTube, X, TikTok, Instagram, Bilibili 그리고 1,800개의 다른 사이트에서 영상을 MP4나 MP3로 Mac에 저장합니다. 그 밖의 페이지는 내장 브라우저로 열어 재생 중인 영상을 저장하세요.",
 		download: "Mac용 다운로드",
 		requirements: "무료, Apple silicon 기반 macOS 14 이상.",
+		unsignedNote: "서명하지 않은 빌드라 macOS가 한 번 확인을 요청합니다.",
+		closingTitle: "첫 링크를 붙여 넣으세요.",
+		stepsToggle: "단계 보기",
 		source: "GitHub에서 소스 코드 보기",
 		waysTitle: "영상을 저장하는 두 가지 방법",
 		ways: [

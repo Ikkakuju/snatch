@@ -31,6 +31,9 @@ export const de: Messages = {
 			"Snatch speichert Videos von YouTube, X, TikTok, Instagram, Bilibili und 1.800 weiteren Seiten auf deinem Mac, als MP4 oder MP3. Jede andere Seite öffnest du im eingebauten Browser und speicherst, was dort läuft.",
 		download: "Für Mac herunterladen",
 		requirements: "Kostenlos, für macOS 14 oder neuer auf Apple silicon.",
+		unsignedNote: "Unsignierter Build: macOS fragt einmal nach.",
+		closingTitle: "Füge deinen ersten Link ein.",
+		stepsToggle: "Schritte anzeigen",
 		source: "Quellcode auf GitHub",
 		waysTitle: "Zwei Wege, ein Video zu speichern",
 		ways: [
