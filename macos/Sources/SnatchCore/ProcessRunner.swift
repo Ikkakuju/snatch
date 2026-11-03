@@ -64,22 +64,17 @@ public final class ChildProcess: @unchecked Sendable {
 		guard code == 0 else { throw ProcessError.spawn(executable.lastPathComponent, code) }
 		self.pid = pid
 
+		// Each pipe is drained by a plain blocking `read` on its own GCD thread, line by
+		// line as output arrives. `FileHandle.bytes` waits to fill a buffer larger than
+		// a pipe holds: a chatty child then blocks on write while we wait to read.
 		lines = AsyncStream { continuation in
-			let group = Task {
-				await withTaskGroup(of: Void.self) { tasks in
-					for (handle, isError) in [(out.fileHandleForReading, false), (err.fileHandleForReading, true)] {
-						tasks.addTask {
-							do {
-								for try await line in handle.bytes.lines {
-									continuation.yield((isError, line))
-								}
-							} catch {}
-						}
-					}
+			let readers = DispatchGroup()
+			for (handle, isError) in [(out.fileHandleForReading, false), (err.fileHandleForReading, true)] {
+				DispatchQueue.global().async(group: readers) {
+					readLines(handle) { continuation.yield((isError, $0)) }
 				}
-				continuation.finish()
 			}
-			continuation.onTermination = { _ in group.cancel() }
+			readers.notify(queue: .global()) { continuation.finish() }
 		}
 
 		// `waitpid` blocks, so it runs on a GCD thread: on the cooperative pool, a
@@ -109,6 +104,29 @@ public final class ChildProcess: @unchecked Sendable {
 			kill(-group, SIGKILL)
 		}
 	}
+}
+
+/// Reads `handle` to end of file, calling `line` for each non-empty line (split on
+/// `\n` or `\r`) as soon as it is complete.
+func readLines(_ handle: FileHandle, _ line: (String) -> Void) {
+	let fd = handle.fileDescriptor
+	var chunk = [UInt8](repeating: 0, count: 16_384)
+	var pending: [UInt8] = []
+	while true {
+		let count = read(fd, &chunk, chunk.count)
+		if count < 0, errno == EINTR { continue }
+		guard count > 0 else { break }
+		for byte in chunk[..<count] {
+			if byte == 10 || byte == 13 {
+				if !pending.isEmpty { line(String(decoding: pending, as: UTF8.self)) }
+				pending.removeAll(keepingCapacity: true)
+			} else {
+				pending.append(byte)
+			}
+		}
+	}
+	if !pending.isEmpty { line(String(decoding: pending, as: UTF8.self)) }
+	try? handle.close()
 }
 
 public enum ProcessRunner {
