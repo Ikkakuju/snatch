@@ -1,0 +1,15 @@
+// The website: an assets-only Worker serving the prerendered page. Cloudflare
+// Workers Builds runs `bun run build`, then the default `npx wrangler deploy`.
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "snatch",
+	"compatibility_date": "2026-10-01",
+	"assets": {
+		"directory": "packages/web/dist/client",
+		"not_found_handling": "single-page-application"
+	},
+	// A Custom Domain: Cloudflare creates the DNS record and certificate.
+	"routes": [{ "pattern": "snatchvideos.com", "custom_domain": true }],
+	"workers_dev": false,
+	"preview_urls": false
+}

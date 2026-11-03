@@ -15,7 +15,7 @@ Snatch is a free, open-source **macOS app** that downloads video from any site [
 | `macos/Sources/Snatch/` | SwiftUI. `Store.swift` (`@Observable` main-actor store: tool setup, probe, job queue, pause/resume, persistence to `downloads.json`), `Views.swift` (app, main window, picker, job rows, Settings). |
 | `macos/Tests/SnatchCoreTests/` | Swift Testing (`import Testing`). |
 | `macos/scripts/bundle.sh` | `Snatch.app` for Apple silicon only (arm64; Intel is not supported), icon from `packages/web/public/logo512.png`, ad-hoc `codesign`, `Snatch.dmg`. |
-| `packages/web/` | TanStack Start, prerendered at build time to one page (`routes/index.tsx`), 13 locales in `src/i18n/locales` (`Messages = typeof en`), deployed as static assets on a Cloudflare Worker (`void.config.ts`, `scripts/deploy-web.sh`). |
+| `packages/web/` | TanStack Start, prerendered at build time to one page (`routes/index.tsx`), 13 locales in `src/i18n/locales` (`Messages = typeof en`), deployed as static assets on a Cloudflare Worker (`wrangler.jsonc` at the root). |
 
 ## How a download works
 
@@ -55,7 +55,7 @@ bun run build           # packages/web/dist/client — never bare `bun build`
 
 - `.github/workflows/ci.yml` (PR + main, `ubuntu-latest`): `bun install --frozen-lockfile` → `bunx biome ci .` → `bun run typecheck` → `bun run build`.
 - `.github/workflows/macos.yml` (changes under `macos/`, and `v*` tags, on `macos-15`): `swift test`; a `v1.2.3` tag also runs `bundle.sh` with that version and `gh release create` with `Snatch.dmg`. The asset name is version-free so the site links to `releases/latest/download/Snatch.dmg` — this only works for visitors once the repository is public.
-- The website is deployed by Cloudflare Workers Builds: build `bun run build:web`, deploy `bash scripts/deploy-web.sh`.
+- The website is deployed by Cloudflare Workers Builds on push to `main`: build `bun run build`, deploy `npx wrangler deploy` (assets-only Worker `snatch`, Custom Domain `snatchvideos.com`).
 - Git hooks via lefthook: pre-commit Biome on staged files; pre-push `bun run typecheck`.
 - AI-assisted commits MUST include a `Co-Authored-By: Claude` trailer.
 

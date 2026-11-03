@@ -80,8 +80,9 @@ bun dev              # http://localhost:5173
 bun run build        # packages/web/dist/client
 ```
 
-Cloudflare Workers Builds deploys it on push to `main` (`bun run build:web`,
-then `bash scripts/deploy-web.sh`).
+Cloudflare Workers Builds deploys it on push to `main`: `bun run build`, then
+`npx wrangler deploy`, which uploads `packages/web/dist/client` as configured in
+`wrangler.jsonc` (Custom Domain `snatchvideos.com`).
 
 ## License
 

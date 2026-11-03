@@ -36,9 +36,8 @@ data/
 !packages/web/.env.production
 .dev.vars
 
-# Void deploy state
-.void/
-.void-wrangler.jsonc
+# Wrangler local state
+.wrangler/
 .cloudflare/
 
 # Application specific

@@ -9,7 +9,6 @@
 	"scripts": {
 		"dev": "bun --filter '@snatch/web' dev",
 		"build": "bun --filter '@snatch/web' build",
-		"build:web": "bun --filter '@snatch/web' build",
 		"preview": "bun --filter '@snatch/web' preview",
 		"typecheck": "bun --filter '*' typecheck",
 		"lint": "biome check .",
@@ -21,6 +20,7 @@
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
 		"@types/bun": "^1.4.3",
-		"lefthook": "^2.2.2"
+		"lefthook": "^2.2.2",
+		"wrangler": "^4.156.2"
 	}
 }
