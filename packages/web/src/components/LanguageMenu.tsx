@@ -1,9 +1,9 @@
-import { Check, Languages } from "lucide-react";
+import { Check, Translate } from "@phosphor-icons/react";
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from "react";
 import { LOCALE_CODES, LOCALE_LABELS } from "../i18n";
 import { useI18n } from "../i18n/context";
 
-/** The language picker: a compact button over a two-column dark panel. */
+/** The language picker: a mono button over a hairline panel. */
 export function LanguageMenu() {
 	const { locale, t, setLocale } = useI18n();
 	const [open, setOpen] = useState(false);
@@ -52,7 +52,7 @@ export function LanguageMenu() {
 	}, [open]);
 
 	return (
-		<div ref={rootRef} className="relative flex h-16 items-center">
+		<div ref={rootRef} className="relative flex h-9 items-center">
 			<button
 				ref={triggerRef}
 				type="button"
@@ -61,10 +61,10 @@ export function LanguageMenu() {
 				aria-controls={open ? "language-menu" : undefined}
 				aria-label={`${t.language.label}: ${LOCALE_LABELS[locale]}`}
 				onClick={() => setOpen((current) => !current)}
-				className="flex h-11 items-center gap-2 rounded-md px-2.5 text-xs font-medium text-gray-400 transition-colors hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+				className="label flex h-11 w-11 items-center justify-center gap-2 rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand lg:h-9 lg:w-auto lg:px-3"
 			>
-				<Languages className="h-4 w-4" aria-hidden="true" />
-				<span className="hidden sm:inline">{LOCALE_LABELS[locale]}</span>
+				<Translate weight="bold" className="h-3.5 w-3.5" aria-hidden="true" />
+				<span className="hidden lg:inline">{LOCALE_LABELS[locale]}</span>
 			</button>
 
 			{open && (
@@ -74,7 +74,7 @@ export function LanguageMenu() {
 					role="menu"
 					aria-label={t.language.label}
 					onKeyDown={handleMenuKeys}
-					className="fixed inset-x-2 top-[4.25rem] z-50 grid max-h-[calc(100dvh-5rem)] grid-cols-2 gap-0.5 overflow-y-auto rounded-lg border border-white/10 bg-[#14111f] p-1.5 shadow-2xl sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:max-h-[70vh] sm:w-[min(92vw,26rem)]"
+					className="fixed inset-x-2 top-[4rem] z-50 grid max-h-[calc(100dvh-5rem)] grid-cols-2 gap-0.5 overflow-y-auto border border-line bg-black p-1 sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:max-h-[70vh] sm:w-[min(92vw,24rem)]"
 				>
 					{LOCALE_CODES.map((code) => (
 						<button
@@ -88,18 +88,18 @@ export function LanguageMenu() {
 								setOpen(false);
 								triggerRef.current?.focus();
 							}}
-							className={`w-full rounded-md px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${
-								code === locale
-									? "font-semibold text-white"
-									: "text-gray-400 hover:bg-white/5 hover:text-white"
+							className={`flex h-11 w-full items-center justify-between gap-3 px-3 text-left text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand ${
+								code === locale ? "text-paper" : "text-muted hover:bg-white/[0.04] hover:text-paper"
 							}`}
 						>
-							<span className="flex items-center justify-between gap-3">
-								<span>{LOCALE_LABELS[code]}</span>
-								{code === locale && (
-									<Check className="h-4 w-4 shrink-0 text-purple-300" aria-hidden="true" />
-								)}
-							</span>
+							<span>{LOCALE_LABELS[code]}</span>
+							{code === locale && (
+								<Check
+									weight="bold"
+									className="h-3.5 w-3.5 shrink-0 text-brand"
+									aria-hidden="true"
+								/>
+							)}
 						</button>
 					))}
 				</div>

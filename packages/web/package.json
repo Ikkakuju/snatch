@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@sentry/react": "^10.76.2",
     "@tanstack/react-router": "^1.170.44",
     "@tanstack/react-start": "^1.169.2",
-    "lucide-react": "^0.577.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

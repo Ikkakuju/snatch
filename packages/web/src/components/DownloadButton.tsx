@@ -1,8 +1,8 @@
-import { Apple } from "lucide-react";
+import { AppleLogo } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
 import { DOWNLOAD_URL } from "../config";
 
-/** The page's one gradient, the logo's, on its one action: downloading the app. */
+/** The page's one saturated surface: the action that puts the app on the Mac. */
 export function DownloadButton({
 	className,
 	label,
@@ -16,9 +16,10 @@ export function DownloadButton({
 		<a
 			href={DOWNLOAD_URL}
 			aria-label={label}
-			className={`inline-flex items-center justify-center gap-2 rounded-full bg-[linear-gradient(90deg,#2f52ff,#6d4bff_55%,#8b4cf4)] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.25)] transition-[filter] hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${className}`}
+			className={`label inline-flex items-center justify-center gap-2 rounded-full bg-brand text-black transition-colors hover:bg-brand-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-ink ${className}`}
 		>
-			<Apple className="h-[1.15em] w-[1.15em]" aria-hidden="true" />
+			{/* Outline weights read at 16px; the filled mark turns into a blob. */}
+			<AppleLogo weight="bold" className="h-4 w-4 shrink-0" aria-hidden="true" />
 			{children}
 		</a>
 	);

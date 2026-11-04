@@ -5,10 +5,12 @@ export const ja: Messages = {
 		label: "言語",
 	},
 	nav: {
-		features: "使い方",
+		features: "機能と特徴",
 		setup: "初回起動",
 		download: "ダウンロード",
 		menu: "メニュー",
+		skip: "本文へスキップ",
+		issues: "不具合報告",
 	},
 	errors: {
 		generic: "問題が発生しました。もう一度お試しください。",
@@ -22,66 +24,71 @@ export const ja: Messages = {
 	seo: {
 		homeTitle: "Snatch – Mac用の無料動画ダウンローダー | snatchvideos",
 		homeDescription:
-			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliなど数千のサイトから動画をMP4またはMP3で保存できる、無料・オープンソースのMacアプリです。",
+			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800のサイトから動画をMP4またはMP3で保存できる、無料・オープンソースのMacアプリです。",
 	},
 	home: {
 		whatsNew: "新機能：内蔵ブラウザ",
 		tagline: "リンクを貼るだけで、\n動画を手元に。",
 		subtitle:
-			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800のサイトの動画を、MP4またはMP3でMacに保存します。それ以外のページも、内蔵ブラウザで開けば再生中の動画を保存できます。",
+			"Snatchは、YouTube、X、TikTok、Instagram、Bilibiliほか1,800以上のサイトから動画を、MP4またはMP3形式でMacに保存します。",
 		download: "Mac版をダウンロード",
-		requirements: "無料。Apple silicon搭載のmacOS 14以降に対応。",
-		unsignedNote: "署名なしのビルドです。macOSが一度だけ確認を求めます。",
-		closingTitle: "最初のリンクを貼ってみましょう。",
-		stepsToggle: "手順を見る",
+		requirements: "無料。Apple Silicon 搭載、macOS 14 以降に対応。",
+		unsignedNote: "未署名ビルド：初回起動時に macOS から確認が求められます。",
+		closingTitle: "最初のリンクを貼り付けてみましょう。",
+		stepsToggle: "操作手順を見る",
 		source: "GitHubでソースコードを見る",
+		demo: {
+			get: "取得",
+			downloadVideo: "動画を保存",
+			stream: "動画 1",
+		},
 		waysTitle: "動画を保存する2つの方法",
 		ways: [
 			{
 				title: "リンクを貼る",
-				body: "YouTube、X、TikTok、Instagram、Bilibiliなど、yt-dlpが対応するサイト向け。動画のすべての解像度とMP3から選べます。",
+				body: "YouTube、X、TikTok、Instagram、Bilibiliなど、yt-dlpが対応するサイト向け。動画のすべての解像度一覧に加え、MP3音声の抽出も可能です。",
 			},
 			{
 				title: "ページを開く",
-				body: "それ以外のサイト向け。Snatchの中でページを開いて動画を再生すると、Snatchがストリームを見つけて保存します。ログイン状態もそのままです。",
+				body: "その他のあらゆるサイト向け。Snatchの内蔵ブラウザでページを開いて動画を再生するだけで、ストリームを検出して保存します。ログイン状態もそのまま引き継がれます。",
 			},
 		],
-		featuresTitle: "詳しく",
+		featuresTitle: "詳しい特徴",
 		features: [
 			{
 				title: "どこでも再生できるMP4",
-				body: "動画はH.264とAACで保存されるので、QuickTimeでもiPhoneでも開けます。音声だけをMP3で保存することもできます。",
+				body: "互換性の高いH.264とAACで保存されるため、QuickTimeやiPhoneですぐに再生できます。音声のみをMP3として抽出することも可能です。",
 			},
 			{
-				title: "一時停止しても、終了しても続きから",
-				body: "ダウンロードは2本ずつ進みます。一時停止しても、Snatchを終了しても、止まったところから再開します。",
+				title: "一時停止・終了しても続きから",
+				body: "複数本の同時ダウンロードに対応。一時停止やSnatchの終了を行っても、次回起動時に止まった箇所から再開できます。",
 			},
 			{
-				title: "ログインしたまま",
-				body: "自分のアカウントでしか見られない動画もダウンロードできます。内蔵ブラウザでログインするか、SnatchにSafari、Chrome、Firefoxのログイン情報を使わせてください。",
+				title: "ログイン状態をそのまま活用",
+				body: "ご自身のアカウントでしか視聴できない限定動画も保存可能。内蔵ブラウザでログインするか、Safari、Chrome、Firefoxの既存ログイン情報をSnatchに読み込ませることができます。",
 			},
 			{
-				title: "Macの外には何も出ません",
-				body: "動画はサイトから「ダウンロード」フォルダへ直接保存されます。Snatchのサーバーも、アカウントも、トラッキングもありません。",
+				title: "Macの外には何も送信されません",
+				body: "動画はサイトからMacの「ダウンロード」フォルダへ直接保存されます。Snatch専用サーバーはなく、アカウント登録もトラッキングも一切ありません。",
 			},
 			{
-				title: "オープンソース",
-				body: "MITライセンスでGitHubに公開しています。中で動くyt-dlpは、サイトの変更に合わせて毎日更新されます。",
+				title: "完全オープンソース",
+				body: "MITライセンスのオープンソースとしてGitHubで公開。内蔵のyt-dlpエンジンは、各サイトの仕様変更に合わせて毎日自動更新されます。",
 			},
 			{
-				title: "保存できないもの",
-				body: "NetflixやDisney+などのコピー防止されたストリームは暗号化されたままです。ページがそれを使っているときは、Snatchがお知らせします。",
+				title: "保存できないコンテンツについて",
+				body: "NetflixやDisney+などのDRM（著作権保護技術）で暗号化されたストリームは保存できません。対象ページで保護が検出された場合、Snatchがお知らせします。",
 			},
 		],
-		firstOpenTitle: "Snatchを初めて開くとき",
 		firstOpenIntro:
-			"Snatchは無料で、Appleの公証を受けていないため、最初に一度だけmacOSで確認が必要です。",
+			"Snatchは無料のオープンソースアプリであり、Appleの公証を受けていないため、初回起動時のみmacOSのセキュリティ確認が必要です。",
 		firstOpenSteps: [
-			"Snatch.dmgを開き、Snatchを「アプリケーション」にドラッグします。",
-			"Snatchを開きます。macOSが確認できないと表示したら、「完了」をクリックします。",
-			"システム設定 → プライバシーとセキュリティで「このまま開く」をクリックします。",
-			"Snatchがyt-dlp（約55 MB）のインストールを確認します。最初に動画を保存するときは、ffmpegのインストールも確認します。",
+			"Snatch.dmg を開き、Snatch を「アプリケーション」フォルダにドラッグ＆ドロップします。",
+			"Snatch を開きます。macOS が開発元を確認できない旨を表示したら、「完了」をクリックします。",
+			"「システム設定」→「プライバシーとセキュリティ」を開き、「このまま開く」をクリックします。",
+			"Snatch が yt-dlp（約 55 MB）の自動ダウンロードを案内します。初回動画保存時には ffmpeg の追加も案内されます。",
 		],
-		legal: "保存する権利のある動画だけをダウンロードし、各サイトの利用規約を守ってください。",
+		legal:
+			"保存する正当な権利を持つ動画のみをダウンロードし、各サイトの利用規約を遵守してください。",
 	},
 };
