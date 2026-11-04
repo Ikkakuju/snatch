@@ -51,3 +51,6 @@ cookies.txt
 
 # Project scaffolding
 .cta.json
+
+# Design-review snapshots (rerun /impeccable critique to rebuild)
+.impeccable/
