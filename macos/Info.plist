@@ -26,6 +26,18 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>MIT License</string>
+	<!-- Sparkle: the appcast is attached to every GitHub release under this fixed
+	     name, and releases/latest always redirects to the newest one. -->
+	<key>SUFeedURL</key>
+	<string>https://github.com/Ikkakuju/snatch/releases/latest/download/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>n4QHoK12KJl9p3fbYuCyD2Qu4YR/jS2PTxf8m3l8CuA=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<!-- Snatch is ad-hoc signed, so let the user approve each install instead of
+	     downloading and applying updates silently. -->
+	<key>SUAllowsAutomaticUpdates</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<!-- The built-in browser opens any page the user types, http ones too. -->

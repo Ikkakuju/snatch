@@ -6,6 +6,7 @@ import {
 	LockSimple,
 } from "@phosphor-icons/react";
 import { useI18n } from "../i18n/context";
+import { Still } from "./Still";
 
 /*
  * Decorative pictures of the app, drawn with HTML in its own palette so they never
@@ -14,19 +15,6 @@ import { useI18n } from "../i18n/context";
  */
 
 const panel = "border border-line bg-white/[0.015]";
-
-/** A still as a violet duotone, so the photographs sit inside the page's palette. */
-function Still({ src, className = "" }: { src: string; className?: string }) {
-	return (
-		<span className={`relative block overflow-hidden bg-brand/80 ${className}`}>
-			<img
-				src={src}
-				alt=""
-				className="h-full w-full object-cover opacity-90 mix-blend-luminosity grayscale brightness-[0.78] contrast-[1.08]"
-			/>
-		</span>
-	);
-}
 
 /** The built-in browser: a page playing a video, and Snatch offering to save it. */
 export function BrowseDemo() {

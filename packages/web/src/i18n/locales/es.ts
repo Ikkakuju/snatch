@@ -37,7 +37,6 @@ export const es: Messages = {
 			"Compilación sin firmar: macOS te pedirá confirmación la primera vez que la abras.",
 		closingTitle: "Pega tu primer enlace.",
 		stepsToggle: "Ver los pasos",
-		source: "Código fuente en GitHub",
 		demo: {
 			get: "Obtener",
 			downloadVideo: "Descargar vídeo",

@@ -36,7 +36,6 @@ export const ja: Messages = {
 		unsignedNote: "未署名ビルド：初回起動時に macOS から確認が求められます。",
 		closingTitle: "最初のリンクを貼り付けてみましょう。",
 		stepsToggle: "操作手順を見る",
-		source: "GitHubでソースコードを見る",
 		demo: {
 			get: "取得",
 			downloadVideo: "動画を保存",

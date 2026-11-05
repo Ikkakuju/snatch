@@ -10,11 +10,12 @@ Snatch is a free, open-source **macOS app** that downloads video from any site [
 
 | Path | Role |
 |---|---|
-| `macos/` | SwiftPM package (`swift-tools-version: 6.0`, macOS 14+, Swift 6 language mode, no third-party packages). |
+| `macos/` | SwiftPM package (`swift-tools-version: 6.0`, macOS 14+, Swift 6 language mode; Sparkle 2 is the only third-party package, for self-updates). |
 | `macos/Sources/SnatchCore/` | No SwiftUI. `Tools.swift` (two `Component`s the user installs from a prompt when first needed: `.engine` = yt-dlp + QuickJS before the first link, `.ffmpeg` = ffmpeg + ffprobe once a download is queued; download + SHA-256 check of yt-dlp (unpacked `yt-dlp_macos.zip`), ffmpeg, ffprobe and QuickJS into `~/Library/Application Support/Snatch/bin`; once a day, before any download starts, yt-dlp is downloaded again when its release hash changed, because the unpacked build cannot `yt-dlp -U`), `ProcessRunner.swift` (`ChildProcess`: `posix_spawn` in its own process group, line streams, group SIGTERM→SIGKILL; `run` takes an optional time limit, which `Engine.probe` sets to 90 s so a page yt-dlp cannot parse stops instead of spinning), `Media.swift` (`yt-dlp -J` → `MediaInfo` and per-resolution `Choice`s), `YtDlp.swift` (`Engine.probe`, `DownloadRun`, progress template parsing, cookie browsers). |
-|`macos/Sources/Snatch/`|SwiftUI. `Store.swift` (`@Observable` main-actor store: tool setup, probe, job queue, pause/resume, persistence to `downloads.json`), `Browser.swift` (built-in browser and stream sniffer, see below), `Views.swift` (window with a sidebar: downloads as a card grid filtered by All / In Progress / Finished, link bar, first-run guide before yt-dlp exists, install cards, quality picker, a Downloads menu with keyboard shortcuts; Settings page with concurrency, components, versions and a manual yt-dlp update; Help menu pointing at the README and the issue tracker).|
+|`macos/Sources/Snatch/`|SwiftUI. `Store.swift` (`@Observable` main-actor store: tool setup, probe, job queue, pause/resume, persistence to `downloads.json`), `Browser.swift` (built-in browser and stream sniffer, see below), `Views.swift` (window with a sidebar: downloads as a card grid filtered by All / In Progress / Finished, link bar, first-run guide before yt-dlp exists, install cards, quality picker, a Downloads menu with keyboard shortcuts; Settings page with concurrency, components, versions, a manual yt-dlp update, and Sparkle update settings; Check for Updates in the app menu; Help menu pointing at the README and the issue tracker).|
 | `macos/Tests/SnatchCoreTests/` | Swift Testing (`import Testing`). |
-| `macos/scripts/bundle.sh` | `Snatch.app` for Apple silicon only (arm64; Intel is not supported), icon from `macos/AppIcon.png`, ad-hoc `codesign`, `Snatch.dmg`. |
+| `macos/scripts/bundle.sh` | `Snatch.app` for Apple silicon only (arm64; Intel is not supported), icon from `macos/AppIcon.png`, embeds and ad-hoc signs `Sparkle.framework`, `Snatch.dmg`. |
+| `macos/scripts/appcast.sh` | Generates and EdDSA-signs `dist/appcast.xml` for a release tag, with release notes from git and the DMG URL under that tag. |
 | `packages/web/` | TanStack Start, prerendered at build time to one page (`routes/index.tsx`), 13 locales in `src/i18n/locales` (`Messages = typeof en`), deployed as static assets on a Cloudflare Worker with Void (`void.config.ts`: Worker `snatch`, Custom Domain `snatchvideos.com`; `scripts/deploy-web.sh`). |
 
 ## How a download works
@@ -26,6 +27,12 @@ Snatch is a free, open-source **macOS app** that downloads video from any site [
 5. **Browse** (`Browser.swift`): a persistent `WKWebView` with a fixed Safari user agent (`BrowserIdentity`). A script injected at document start in every frame reports HLS/DASH manifests (fetch, XMLHttpRequest, `PerformanceObserver`), what `<video>` plays, and DRM requests; a master playlist hides its per-quality playlists. Downloading one exports the browser's cookies to `browser-cookies.txt` (Netscape format, mode 600) and probes the stream with `--cookies`, `--referer <page>` and the same user agent (`BrowserContext`, kept on the job for resume), named after the page title.
 6. Every run gets `--ffmpeg-location <bin>` and `--js-runtimes quickjs:<bin>/qjs` (YouTube's player challenges need a JS runtime), plus `--cookies-from-browser` when chosen in Settings.
 
+## How the app updates itself
+
+`macos/Info.plist` points `SUFeedURL` at `releases/latest/download/appcast.xml`, and every `v*` release attaches that file. `appcast.sh` runs Sparkle's `generate_appcast` from SwiftPM's binary artifact, embeds the release notes and signs the DMG with the EdDSA key from the `SPARKLE_PRIVATE_KEY` GitHub secret (local runs read the login-keychain account `snatch`). `Views.swift` owns an `SPUStandardUpdaterController`.
+
+The app and Sparkle.framework are ad-hoc signed, so Sparkle relies on the EdDSA signature rather than a Developer ID; `SUAllowsAutomaticUpdates` is false because there is no notarized identity. The public key in `Info.plist` and the secret must stay paired: rotating the key means shipping an app that carries the new public key, signed with the old one.
+
 ## Development Commands
 
 ```bash
@@ -33,6 +40,7 @@ Snatch is a free, open-source **macOS app** that downloads video from any site [
 cd macos && swift test
 cd macos && swift run Snatch
 VERSION=1.2.3 macos/scripts/bundle.sh   # macos/dist/Snatch.app + Snatch.dmg
+macos/scripts/appcast.sh v1.2.3        # signed dist/appcast.xml (needs the EdDSA key)
 
 # Website (root)
 bun install
@@ -42,7 +50,7 @@ bun run check           # biome check --fix .
 bun run build           # packages/web/dist/client — never bare `bun build`
 ```
 
-> With only the Command Line Tools and the macOS 27 SDK, SwiftUI's `@State` is a macro whose plugin ships with Xcode only; build with `SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk`. CI uses Xcode and is unaffected.
+> With only the Command Line Tools and the macOS 27 SDK, SwiftUI's `@State` is a macro whose plugin ships with Xcode only; build with `SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX26.5.sdk`. The same SDK needs `swift test -Xswiftc -plugin-path -Xswiftc /Library/Developer/CommandLineTools/usr/lib/swift/host/plugins/testing` to find Swift Testing's macros. CI uses Xcode and is unaffected.
 
 ## Conventions
 
@@ -56,7 +64,7 @@ bun run build           # packages/web/dist/client — never bare `bun build`
 ## CI, Release & Attribution
 
 - `.github/workflows/ci.yml` (PR + main, `ubuntu-latest`): `bun install --frozen-lockfile` → `bunx biome ci .` → `bun run typecheck` → `bun run build`.
-- `.github/workflows/macos.yml` (changes under `macos/`, and `v*` tags, on `macos-15`): `swift test`; a `v1.2.3` tag also runs `bundle.sh` with that version and `gh release create` with `Snatch.dmg`. The asset name is version-free so the site links to `releases/latest/download/Snatch.dmg` — this only works for visitors once the repository is public.
+- `.github/workflows/macos.yml` (changes under `macos/`, and `v*` tags, on `macos-15`): `swift test`; a `v1.2.3` tag also runs `bundle.sh` with that version, `appcast.sh` (the `SPARKLE_PRIVATE_KEY` secret signs the feed) and `gh release create` with `Snatch.dmg` and `appcast.xml`. The asset name is version-free so the site links to `releases/latest/download/Snatch.dmg` — this only works for visitors once the repository is public.
 - The website is deployed by Cloudflare Workers Builds: build `bun run build:web`, deploy `bash scripts/deploy-web.sh`.
 - Git hooks via lefthook: pre-commit Biome on staged files; pre-push `bun run typecheck`.
 - AI-assisted commits MUST include a `Co-Authored-By: Claude` trailer.
@@ -69,7 +77,7 @@ bun run build           # packages/web/dist/client — never bare `bun build`
 ## Anti-Patterns (avoid without discussion)
 
 - A server, API or SSR runtime for downloads — the point of the app is that it runs locally.
-- Third-party Swift packages, or bundling yt-dlp inside the app.
+- Third-party Swift packages beyond Sparkle, or bundling yt-dlp inside the app.
 - Running a downloaded tool before its checksum matched.
 - Reading yt-dlp's human-readable output instead of the `[snatch]` progress template and `--print`.
 - Bypassing lefthook with `--no-verify`.

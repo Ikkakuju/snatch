@@ -1,5 +1,6 @@
 import AppKit
 import SnatchCore
+import Sparkle
 import SwiftUI
 
 /// snatchvideos.com's palette (`--color-brand`, `--color-ink`, the logo gradient).
@@ -24,16 +25,59 @@ extension Color {
 	}
 }
 
+/// Sparkle's standard updater. Sparkle needs a real app bundle, so a bare
+/// `swift run` binary leaves it stopped instead of logging a configuration error.
+@MainActor @Observable
+final class Updater {
+	@ObservationIgnored private let controller = SPUStandardUpdaterController(
+		startingUpdater: false, updaterDelegate: nil, userDriverDelegate: nil
+	)
+	@ObservationIgnored private var observations: [NSKeyValueObservation] = []
+
+	var canCheckForUpdates = false
+	var automaticallyChecksForUpdates = true
+
+	init() {
+		guard Bundle.main.bundleIdentifier != nil else { return }
+		automaticallyChecksForUpdates = controller.updater.automaticallyChecksForUpdates
+		observations.append(
+			controller.updater.observe(\.canCheckForUpdates, options: [.initial, .new]) {
+				[weak self] updater, _ in
+				Task { @MainActor in self?.canCheckForUpdates = updater.canCheckForUpdates }
+			}
+		)
+		observations.append(
+			controller.updater.observe(\.automaticallyChecksForUpdates, options: [.new]) {
+				[weak self] updater, _ in
+				Task { @MainActor in
+					self?.automaticallyChecksForUpdates = updater.automaticallyChecksForUpdates
+				}
+			}
+		)
+		controller.startUpdater()
+	}
+
+	func checkForUpdates() {
+		controller.checkForUpdates(nil)
+	}
+
+	func setAutomaticallyChecksForUpdates(_ value: Bool) {
+		controller.updater.automaticallyChecksForUpdates = value
+	}
+}
+
 @main
 struct SnatchApp: App {
 	@State private var store = Store()
 	@State private var browser = Browser()
+	@State private var updater = Updater()
 
 	var body: some Scene {
 		Window("Snatch", id: "main") {
 			RootView()
 				.environment(store)
 				.environment(browser)
+				.environment(updater)
 				.task { await store.prepare() }
 				.tint(Brand.accent)
 				// ponytail: dark only, like the website; add a light palette if anyone asks.
@@ -42,6 +86,10 @@ struct SnatchApp: App {
 		.windowStyle(.hiddenTitleBar)
 		.defaultSize(width: 1040, height: 700)
 		.commands {
+			CommandGroup(after: .appInfo) {
+				Button("Check for Updates…") { updater.checkForUpdates() }
+					.disabled(!updater.canCheckForUpdates)
+			}
 			CommandGroup(replacing: .appSettings) {
 				Button("Settings…") { store.section = .settings }
 					.keyboardShortcut(",")
@@ -257,6 +305,7 @@ struct DownloadsPage: View {
 				Spacer()
 				Button("Resume All") { store.resumeAll() }
 					.buttonStyle(.borderedProminent)
+					.foregroundStyle(.black)
 			}
 			.frame(maxWidth: 760, alignment: .leading)
 		}
@@ -284,6 +333,8 @@ struct DownloadsPage: View {
 							browser.go(page.absoluteString)
 						}
 						.buttonStyle(.borderedProminent)
+						.foregroundStyle(.black)
+					.foregroundStyle(.black)
 					}
 				}
 			}
@@ -381,6 +432,8 @@ struct FirstRunGuide: View {
 				} else {
 					Button("Install yt-dlp") { Task { await store.install(.engine) } }
 						.buttonStyle(.borderedProminent)
+						.foregroundStyle(.black)
+					.foregroundStyle(.black)
 						.disabled(store.installing != nil)
 				}
 			}
@@ -447,6 +500,7 @@ struct InstallCard: View {
 			} else {
 				Button("Install") { Task { await store.install(component) } }
 					.buttonStyle(.borderedProminent)
+					.foregroundStyle(.black)
 					.disabled(store.installing != nil)
 			}
 		}
@@ -749,6 +803,7 @@ struct Thumbnail: View {
 struct SettingsPage: View {
 	@Environment(Store.self) private var store
 	@Environment(Browser.self) private var browser
+	@Environment(Updater.self) private var updater
 	@State private var confirmingClear = false
 
 	var body: some View {
@@ -812,6 +867,22 @@ struct SettingsPage: View {
 					Text("Installed in Snatch's own folder and checked against a SHA-256 before they run. yt-dlp updates itself once a day.")
 				}
 				.foregroundStyle(.secondary)
+			}
+			Section {
+				Toggle(
+					"Check for updates automatically",
+					isOn: Binding(
+						get: { updater.automaticallyChecksForUpdates },
+						set: { updater.setAutomaticallyChecksForUpdates($0) }
+					)
+				)
+				Button("Check Now") { updater.checkForUpdates() }
+					.disabled(!updater.canCheckForUpdates)
+			} header: {
+				Text("Updates")
+			} footer: {
+				Text("Updates come from this project's GitHub releases and are checked against Sparkle's EdDSA key before they install.")
+					.foregroundStyle(.secondary)
 			}
 			Section("About") {
 				LabeledContent("Version", value: appVersion)

@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<Props, State> {
 							<h1 className="text-2xl font-bold text-white">
 								{this.props.labels?.title ?? "Something went wrong"}
 							</h1>
-							<p className="text-gray-400">
+							<p className="text-muted">
 								{this.state.error?.message ||
 									this.props.labels?.fallbackMessage ||
 									"An unexpected error occurred. Please try again."}
@@ -68,7 +68,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
 						{import.meta.env.DEV && this.state.error && (
 							<details className="text-left bg-white/5 rounded-lg p-4 border border-white/10">
-								<summary className="cursor-pointer text-sm text-gray-400 hover:text-white transition-colors">
+								<summary className="cursor-pointer text-sm text-muted hover:text-paper transition-colors">
 									{this.props.labels?.details ?? "Error details"}
 								</summary>
 								<pre className="mt-3 text-xs text-red-400 overflow-auto max-h-40 whitespace-pre-wrap">
@@ -90,7 +90,7 @@ export class ErrorBoundary extends Component<Props, State> {
 							<button
 								type="button"
 								onClick={this.handleReload}
-								className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 rounded-xl text-white font-medium transition-all duration-200"
+								className="label rounded-full bg-brand px-6 py-3 text-black transition-colors hover:bg-brand-light"
 							>
 								{this.props.labels?.reload ?? "Reload page"}
 							</button>

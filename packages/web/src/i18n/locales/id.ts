@@ -37,7 +37,6 @@ export const id: Messages = {
 			"Build tanpa sertifikat Apple: macOS akan meminta konfirmasi satu kali saat pertama dibuka.",
 		closingTitle: "Tempel tautan pertama Anda.",
 		stepsToggle: "Lihat langkah-langkahnya",
-		source: "Kode sumber di GitHub",
 		demo: {
 			get: "Ambil",
 			downloadVideo: "Unduh video",

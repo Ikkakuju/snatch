@@ -36,7 +36,6 @@ export const pt: Messages = {
 		unsignedNote: "Versão não assinada: o macOS solicitará uma confirmação na primeira abertura.",
 		closingTitle: "Cole o seu primeiro link.",
 		stepsToggle: "Ver os passos",
-		source: "Código-fonte no GitHub",
 		demo: {
 			get: "Obter",
 			downloadVideo: "Baixar vídeo",

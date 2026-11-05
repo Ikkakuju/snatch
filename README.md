@@ -3,12 +3,31 @@
 [![CI](https://github.com/Ikkakuju/snatch/actions/workflows/ci.yml/badge.svg)](https://github.com/Ikkakuju/snatch/actions/workflows/ci.yml) [![macOS app](https://github.com/Ikkakuju/snatch/actions/workflows/macos.yml/badge.svg)](https://github.com/Ikkakuju/snatch/actions/workflows/macos.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A free, open-source Mac app that downloads video from YouTube, X, TikTok,
-Instagram, Bilibili and the 1,800+ other sites [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-supports. Paste a link, pick a resolution or MP3, and the file lands in your
-Downloads folder.
+Instagram, Bilibili and 1,800+ other sites to your Mac as MP4 or MP3.
+Paste a link or browse any page in the built-in stream-sniffing browser, pick a
+resolution, and the video lands directly in your Downloads folder.
 
 **[Download Snatch.dmg](https://github.com/Ikkakuju/snatch/releases/latest/download/Snatch.dmg)** ·
 [snatchvideos.com](https://snatchvideos.com) · macOS 14 or later, Apple silicon
+
+## Two ways to save a video
+
+1. **Paste a link**: For YouTube, X, TikTok, Instagram, Bilibili and thousands of sites [yt-dlp](https://github.com/yt-dlp/yt-dlp) supports. Snatch lists every available resolution, plus audio-only MP3.
+2. **Open in the built-in browser**: For everything else. Navigate to any page inside Snatch's persistent browser and start playing the video. Snatch automatically sniffs HLS and DASH streams and downloads them with your active login and cookies intact.
+
+## Key Features
+
+- **MP4 that plays everywhere**: Saved as H.264 video and AAC audio so files open cleanly in QuickTime, Finder preview, and on iPhone / iPad without codec incompatibilities. Or keep only the audio as MP3.
+- **Built-in browser with stream sniffer**: Sniffs media streams from pages yt-dlp cannot parse directly, with your sign-in session preserved.
+- **Queue and resume**: Concurrent downloads (two at a time by default). Pause, resume, and survive app restarts. Partial files live in Application Support and never clutter your Downloads folder.
+- **Account sign-ins**: Download members-only or private videos by signing in via the built-in browser or importing cookies from Safari, Chrome, Firefox, Edge, Brave, etc. (Safari requires Full Disk Access).
+- **Private & zero-server**: Videos go straight from the host site to your Mac. No Snatch proxy server, no tracking, no registration required.
+- **Daily automated engine updates**: Snatch checks and updates yt-dlp daily so it adapts quickly as video platforms evolve.
+- **Signed app updates**: Snatch checks its own GitHub releases once a day and installs a newer version in place. Every update is verified against Sparkle's EdDSA key before it runs.
+- **Verified on-demand tools**: Snatch bundles no binaries; it downloads yt-dlp, QuickJS, ffmpeg and ffprobe on first need and verifies each file against SHA-256 before running.
+- **Multilingual website**: [snatchvideos.com](https://snatchvideos.com) is localized into 13 languages.
+
+> Note: Copy-protected DRM streams (such as Netflix or Disney+) remain encrypted and cannot be downloaded. Snatch alerts you when a page uses DRM.
 
 ## First launch
 
@@ -30,25 +49,11 @@ all) and each is checked against a SHA-256 before it runs:
 | ffmpeg, ffprobe | [martin-riedl.de](https://ffmpeg.martin-riedl.de) 9.0.2 builds | hashes pinned in `macos/Sources/SnatchCore/Tools.swift` |
 | QuickJS | `quickjs-ng/quickjs` v0.18.0, `qjs-darwin-arm64` | hash pinned in `Tools.swift`; yt-dlp needs a JavaScript runtime for YouTube |
 
-## What it does
-
-- One choice per resolution the site offers, saved as H.264/AAC MP4 so it plays
-  in QuickTime and on iPhone, or the audio alone as MP3.
-- A download queue, two at a time; pause, resume and survive a quit. Partial
-  files live in Application Support, never in your Downloads folder.
-- Optional cookies from Safari, Chrome, Firefox, Edge, Brave, Vivaldi, Opera or
-  Chromium (Settings), for sign-in-only and age-restricted videos. Safari needs
-  Full Disk Access for Snatch.
-
-It cannot download DRM-protected streams (Netflix, Disney+ and the like), and a
-site yt-dlp does not support, or has not caught up with, fails with yt-dlp's
-own message.
-
 ## Repository
 
 | Path | What |
 |---|---|
-| `macos/` | The app: SwiftPM package, SwiftUI, no dependencies. `SnatchCore` holds tool provisioning, the yt-dlp process and format logic; `Snatch` is the UI. |
+| `macos/` | The app: SwiftPM package, SwiftUI. Sparkle 2 is the only dependency, used for self-updates. `SnatchCore` holds tool provisioning, the yt-dlp process and format logic; `Snatch` is the UI. |
 | `packages/web/` | snatchvideos.com: one prerendered landing page (13 languages) with the download link, served from a Cloudflare Worker. |
 
 ### Build the app
@@ -60,6 +65,7 @@ cd macos
 swift test                         # SnatchCore tests
 swift run Snatch                   # run from source
 VERSION=1.0.0 scripts/bundle.sh    # dist/Snatch.app + dist/Snatch.dmg (Apple silicon, ad-hoc signed)
+scripts/appcast.sh v1.0.0          # signed dist/appcast.xml (EdDSA key from the keychain)
 ```
 
 With only the Command Line Tools on the macOS 27 SDK, SwiftUI's `@State` macro
@@ -68,9 +74,11 @@ plugin is missing; build against the 26.x SDK instead:
 
 ### Release
 
-Push a `v1.2.3` tag. `.github/workflows/macos.yml` tests, builds `Snatch.dmg`
-and publishes it as that GitHub release; the website always links to
-`releases/latest/download/Snatch.dmg`.
+Push a `v1.2.3` tag. `.github/workflows/macos.yml` tests, builds `Snatch.dmg`,
+generates and EdDSA-signs `appcast.xml`, and publishes both as that GitHub
+release; the website always links to `releases/latest/download/Snatch.dmg`, and
+the app reads `releases/latest/download/appcast.xml` to update itself. The
+signing key lives in the `SPARKLE_PRIVATE_KEY` repository secret.
 
 ### Website
 

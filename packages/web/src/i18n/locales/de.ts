@@ -36,7 +36,6 @@ export const de: Messages = {
 		unsignedNote: "Unsignierter Build: macOS bittet beim ersten Start einmalig um Bestätigung.",
 		closingTitle: "Füge deinen ersten Link ein.",
 		stepsToggle: "Schritte anzeigen",
-		source: "Quellcode auf GitHub",
 		demo: {
 			get: "Laden",
 			downloadVideo: "Video laden",

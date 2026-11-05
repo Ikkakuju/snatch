@@ -36,7 +36,6 @@ export const zhCN: Messages = {
 		unsignedNote: "未签名构建版本：macOS 会在首次打开时提示确认一次。",
 		closingTitle: "粘贴你的第一个链接。",
 		stepsToggle: "查看操作步骤",
-		source: "在 GitHub 上查看源代码",
 		demo: {
 			get: "解析",
 			downloadVideo: "下载视频",
