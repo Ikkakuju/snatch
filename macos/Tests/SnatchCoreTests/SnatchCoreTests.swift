@@ -88,6 +88,14 @@ import Testing
 	#expect(started.duration(to: .now) < .seconds(5))
 }
 
+@Test func cookieJarEscapesFieldDelimiters() {
+	// A raw tab or newline in a field forges a row for another domain.
+	#expect(jarField("a\tb") == "a b")
+	#expect(jarField("a\nb") == "a b")
+	#expect(jarField("a\rb") == "a b")
+	#expect(jarField("a.b") == "a.b")
+}
+
 @Test func browserCookiesExportAsNetscapeLines() throws {
 	let session = try #require(HTTPCookie(properties: [
 		.domain: ".example.com", .path: "/", .name: "cf_clearance", .value: "abc", .secure: "TRUE",

@@ -88,7 +88,7 @@ final class Browser: NSObject {
 
 	/// Exports the cookies, then reads the stream like a pasted link.
 	func download(_ media: SniffedMedia, with store: Store) async {
-		await exportCookies()
+		await exportCookies(for: [media.url.host(), page?.host()].compactMap { $0 })
 		let image = try? await webView.evaluateJavaScript(
 			"document.querySelector('meta[property=\"og:image\"]')?.content ?? null"
 		) as? String
@@ -99,14 +99,25 @@ final class Browser: NSObject {
 		await store.probe(media.url.absoluteString, browser: context, thumbnail: image.flatMap(URL.init))
 	}
 
-	/// Writes this browser's cookies where `--cookies` reads them, readable only by
-	/// the user: they are live sign-ins.
-	func exportCookies() async {
-		let cookies = await webView.configuration.websiteDataStore.httpCookieStore.allCookies()
+	/// Writes the cookies a request to these hosts would carry, where `--cookies` reads
+	/// them, readable only by the user: they are live sign-ins, so the jar must not hold
+	/// every site the user has ever signed into.
+	func exportCookies(for hosts: [String]) async {
+		let all = await webView.configuration.websiteDataStore.httpCookieStore.allCookies()
+		let cookies = all.filter { cookie in
+			hosts.contains { host in
+				let name = host.lowercased()
+				let domain = cookie.domain.lowercased().trimmingCharacters(in: ["."])
+				return name == domain || name.hasSuffix(".\(domain)")
+			}
+		}
+		guard !cookies.isEmpty else { return }
 		let file = AppPaths.browserCookies
 		try? FileManager.default.createDirectory(at: AppPaths.support, withIntermediateDirectories: true)
-		FileManager.default.createFile(atPath: file.path, contents: nil, attributes: [.posixPermissions: 0o600])
-		try? netscapeCookieFile(cookies).write(to: file, atomically: false, encoding: .utf8)
+		// Atomic replaces the file (and any symlink at that path) rather than truncating it
+		// in place, and the mode is set afterwards because the write creates it 0644.
+		try? netscapeCookieFile(cookies).write(to: file, atomically: true, encoding: .utf8)
+		try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: file.path)
 	}
 
 	/// Signs out of every site: cookies, storage, history and caches.

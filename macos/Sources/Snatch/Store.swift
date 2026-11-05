@@ -130,12 +130,13 @@ final class Store {
 		await Tools.updateYtDlpIfDue()
 		updating = false
 		ytDlpVersion = await Tools.ytDlpVersion()
+		await probeDeferredLink()
 		pump()
 	}
 
 	/// A manual yt-dlp update; only between downloads, since it replaces yt-dlp's folder.
 	func checkForUpdate() async {
-		guard !updating, !isDownloading else { return }
+		guard !updating, !isDownloading, !probing else { return }
 		updating = true
 		updateMessage = nil
 		do {
@@ -148,6 +149,7 @@ final class Store {
 			updateMessage = error.localizedDescription
 		}
 		updating = false
+		await probeDeferredLink()
 		pump()
 	}
 
@@ -162,16 +164,20 @@ final class Store {
 			failedComponent = nil
 			if component == .engine {
 				ytDlpVersion = await Tools.ytDlpVersion()
-				if let link = deferredLink {
-					deferredLink = nil
-					Task { await probe(link) }
-				}
+				await probeDeferredLink()
 			}
 			pump()
 		} catch {
 			installError = error.localizedDescription
 			failedComponent = component
 		}
+	}
+
+	/// A link that arrived while yt-dlp was being installed or updated.
+	private func probeDeferredLink() async {
+		guard let link = deferredLink, !updating, installed.contains(.engine) else { return }
+		deferredLink = nil
+		await probe(link)
 	}
 
 	// MARK: Resolve
@@ -187,6 +193,12 @@ final class Store {
 			probeError = String(localized: "Paste a link that starts with http:// or https://.")
 			return
 		}
+		// The daily yt-dlp check replaces the binary; probing through it reads a half-written tree.
+		guard !updating else {
+			deferredLink = url
+			return
+		}
+		guard !probing else { return }
 		probing = true
 		probeError = nil
 		unreadablePage = nil
@@ -282,6 +294,16 @@ final class Store {
 		save()
 	}
 
+	/// Browser jobs share one jar; keep it while any of them can still run, then delete it.
+	private func discardBrowserCookiesIfUnused() {
+		let needed = jobs.contains { job in
+			guard job.browser != nil else { return false }
+			if case .done = job.state { return false }
+			return true
+		}
+		if !needed { try? FileManager.default.removeItem(at: AppPaths.browserCookies) }
+	}
+
 	func reveal(_ file: URL) {
 		NSWorkspace.shared.activateFileViewerSelecting([file])
 	}
@@ -352,6 +374,7 @@ final class Store {
 		if runs[id] === run {
 			runs[id] = nil
 			save()
+			discardBrowserCookiesIfUnused()
 			pump()
 		}
 	}

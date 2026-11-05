@@ -44,8 +44,13 @@ public struct EngineOptions: Sendable {
 			"--no-warnings",
 		]
 		if let browser {
+			// A resumed job can outlive the jar (Clear Sign-ins, a wiped support folder);
+			// yt-dlp treats a missing --cookies path as fatal, so only pass a real one.
+			if FileManager.default.fileExists(atPath: AppPaths.browserCookies.path) {
+				args += ["--cookies", AppPaths.browserCookies.path]
+			}
 			args += [
-				"--cookies", AppPaths.browserCookies.path, "--referer", browser.referer,
+				"--referer", browser.referer,
 				"--user-agent", BrowserIdentity.userAgent,
 			]
 		} else if let browser = cookies.argument {
@@ -111,14 +116,20 @@ func literalTitle(_ title: String) -> String {
 }
 
 /// `cookies` as a Netscape cookie file, the format `yt-dlp --cookies` reads.
+/// A field with a tab or newline would forge a row for another domain.
+func jarField(_ value: String) -> String {
+	value.replacingOccurrences(of: "\t", with: " ").replacingOccurrences(of: "\n", with: " ")
+		.replacingOccurrences(of: "\r", with: " ")
+}
+
 public func netscapeCookieFile(_ cookies: [HTTPCookie]) -> String {
 	var lines = ["# Netscape HTTP Cookie File"]
 	for cookie in cookies {
-		let domain = (cookie.isHTTPOnly ? "#HttpOnly_" : "") + cookie.domain
+		let domain = (cookie.isHTTPOnly ? "#HttpOnly_" : "") + jarField(cookie.domain)
 		let expires = cookie.expiresDate.map { String(Int($0.timeIntervalSince1970)) } ?? "0"
 		lines.append([
-			domain, cookie.domain.hasPrefix(".") ? "TRUE" : "FALSE", cookie.path,
-			cookie.isSecure ? "TRUE" : "FALSE", expires, cookie.name, cookie.value,
+			domain, cookie.domain.hasPrefix(".") ? "TRUE" : "FALSE", jarField(cookie.path),
+			cookie.isSecure ? "TRUE" : "FALSE", expires, jarField(cookie.name), jarField(cookie.value),
 		].joined(separator: "\t"))
 	}
 	return lines.joined(separator: "\n") + "\n"

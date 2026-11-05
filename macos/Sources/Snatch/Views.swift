@@ -956,11 +956,14 @@ struct ComponentRow: View {
 					ProgressView().controlSize(.small)
 				} else {
 					Button("Check for Updates") { Task { await store.checkForUpdate() } }
-						.disabled(store.isDownloading)
+						// Replacing yt-dlp under a running probe breaks that probe.
+						.disabled(store.isDownloading || store.probing)
 						.help(
 							store.isDownloading
 								? "Pause downloads to update yt-dlp."
-								: "Check yt-dlp for a new release."
+								: store.probing
+									? "Wait for the current link to finish."
+									: "Check yt-dlp for a new release."
 						)
 				}
 			}
