@@ -26,7 +26,7 @@ export const Route = createRootRoute({
 			{ name: "viewport", content: "width=device-width, initial-scale=1" },
 			{ name: "robots", content: "index, follow, max-image-preview:large" },
 			{ name: "yandex-verification", content: "3665309d16ecf0b4" },
-			{ name: "theme-color", content: "#0a0718" },
+			{ name: "theme-color", content: "#000000" },
 			{ property: "og:type", content: "website" },
 			{ property: "og:site_name", content: "snatchvideos" },
 			{ property: "og:locale", content: "en_US" },
@@ -59,6 +59,7 @@ export const Route = createRootRoute({
 	component: () => (
 		<I18nProvider>
 			<LocalizedErrorBoundary>
+				<SkipLink />
 				<SiteHeader />
 				<Outlet />
 				<SiteFooter />
@@ -66,6 +67,19 @@ export const Route = createRootRoute({
 		</I18nProvider>
 	),
 });
+
+/** First tab stop, invisible until focused: the header's links are otherwise a wall. */
+function SkipLink() {
+	const { t } = useI18n();
+	return (
+		<a
+			href="#main"
+			className="label sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-brand focus:px-3 focus:py-2.5 focus:text-black focus:outline-none"
+		>
+			{t.nav.skip}
+		</a>
+	);
+}
 
 /** The boundary is a class and cannot use the hook, so the copy is passed in. */
 function LocalizedErrorBoundary({ children }: { children: ReactNode }) {

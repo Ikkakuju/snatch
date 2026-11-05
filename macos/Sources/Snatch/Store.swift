@@ -2,6 +2,7 @@ import AppKit
 import Foundation
 import Observation
 import SnatchCore
+import UserNotifications
 
 struct Job: Codable, Identifiable {
 	enum State: Codable, Equatable {
@@ -49,6 +50,10 @@ final class Store {
 	var installed = Set(Component.allCases.filter(Tools.isInstalled))
 	var installing: Component?
 	var installError: String?
+	/// Whose install failed, so Settings can show the error next to that row.
+	var failedComponent: Component?
+	/// Jobs that were mid-download when the app quit, shown as a notice at launch.
+	var pausedAtLaunch = 0
 	/// The launch-time yt-dlp update check; nothing may run yt-dlp until it is done.
 	var updating = true
 	var ytDlpVersion: String?
@@ -80,17 +85,26 @@ final class Store {
 	/// Runs told to stop that have not exited yet. Their job cannot restart until
 	/// they do, or two yt-dlps would write the same `.part` file.
 	@ObservationIgnored private var stopping: [UUID: DownloadRun] = [:]
-	// ponytail: a fixed two at a time; make it a setting if anyone asks.
-	private let maxRunning = 2
+	/// How many downloads may run at once; edited in Settings.
+	var maxRunning: Int {
+		didSet {
+			if maxRunning < 1 { maxRunning = 1; return }
+			if maxRunning > 4 { maxRunning = 4; return }
+			UserDefaults.standard.set(maxRunning, forKey: "maxRunning")
+			pump()
+		}
+	}
 
 	init() {
 		let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
 		folder = UserDefaults.standard.string(forKey: "folder").map { URL(fileURLWithPath: $0) } ?? downloads
 		cookies = UserDefaults.standard.string(forKey: "cookies").flatMap(CookieBrowser.init) ?? .none
+		maxRunning = UserDefaults.standard.object(forKey: "maxRunning") as? Int ?? 2
 		jobs = (try? JSONDecoder().decode([Job].self, from: Data(contentsOf: AppPaths.jobs))) ?? []
 		// Nothing is running at launch: a job the app quit during waits for Resume.
 		for index in jobs.indices where jobs[index].state == .running || jobs[index].state == .queued {
 			jobs[index].state = .paused
+			pausedAtLaunch += 1
 		}
 	}
 
@@ -141,6 +155,7 @@ final class Store {
 		do {
 			try await Tools.install(component)
 			installed.insert(component)
+			failedComponent = nil
 			if component == .engine {
 				ytDlpVersion = await Tools.ytDlpVersion()
 				if let link = deferredLink {
@@ -151,6 +166,7 @@ final class Store {
 			pump()
 		} catch {
 			installError = error.localizedDescription
+			failedComponent = component
 		}
 	}
 
@@ -212,6 +228,7 @@ final class Store {
 	func resume(_ id: UUID) {
 		guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
 		jobs[index].state = .queued
+		pausedAtLaunch = 0
 		save()
 		pump()
 	}
@@ -224,6 +241,7 @@ final class Store {
 			default: break
 			}
 		}
+		pausedAtLaunch = 0
 		save()
 		pump()
 	}
@@ -321,6 +339,7 @@ final class Store {
 				let size = (try? FileManager.default.attributesOfItem(atPath: file.path))?[.size] as? NSNumber
 				jobs[index].savedBytes = size?.int64Value
 				try? FileManager.default.removeItem(at: jobs[index].partials)
+				Notifier.downloadFinished(jobs[index].title)
 			case let .failed(error):
 				jobs[index].state = .failed(error.message)
 			}
@@ -335,5 +354,38 @@ final class Store {
 	private func save() {
 		try? FileManager.default.createDirectory(at: AppPaths.support, withIntermediateDirectories: true)
 		try? JSONEncoder().encode(jobs).write(to: AppPaths.jobs, options: .atomic)
+	}
+}
+
+/// One system notification per finished download, so a queued batch that finishes in
+/// the background says so. A bare `swift run` binary has no bundle identifier and
+/// cannot notify, so it stays silent instead of asking for permission it cannot use.
+@MainActor
+enum Notifier {
+	private static var ready = false
+
+	static func downloadFinished(_ title: String) {
+		guard Bundle.main.bundleIdentifier != nil else { return }
+		if ready {
+			post(title)
+			return
+		}
+		UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) {
+			granted, _ in
+			guard granted else { return }
+			Task { @MainActor in
+				ready = true
+				post(title)
+			}
+		}
+	}
+
+	private static func post(_ title: String) {
+		let content = UNMutableNotificationContent()
+		content.title = String(localized: "Saved")
+		content.body = title
+		UNUserNotificationCenter.current().add(
+			UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+		)
 	}
 }

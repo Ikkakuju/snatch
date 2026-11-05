@@ -4,14 +4,14 @@ import SwiftUI
 
 /// snatchvideos.com's palette (`--color-brand`, `--color-ink`, the logo gradient).
 enum Brand {
-	static let accent = Color(hex: 0x6D4BFF)
-	static let light = Color(hex: 0xA78BFA)
-	static let ink = Color(hex: 0x0A090F)
-	static let sidebar = Color(hex: 0x100E18)
-	static let surface = Color(hex: 0x17142A).opacity(0.85)
-	static let stroke = Color.white.opacity(0.07)
+	static let accent = Color(hex: 0xA78BFA)
+	static let light = Color(hex: 0xC4B5FD)
+	static let ink = Color(hex: 0x000000)
+	static let sidebar = Color(hex: 0x000000)
+	static let surface = Color.white.opacity(0.04)
+	static let stroke = Color.white.opacity(0.12)
 	static let gradient = LinearGradient(
-		colors: [Color(hex: 0x2F52FF), Color(hex: 0x8B4CF4)], startPoint: .leading, endPoint: .trailing
+		colors: [Color(hex: 0xA78BFA), Color(hex: 0xC4B5FD)], startPoint: .leading, endPoint: .trailing
 	)
 }
 
@@ -45,6 +45,10 @@ struct SnatchApp: App {
 			CommandGroup(replacing: .appSettings) {
 				Button("Settings…") { store.section = .settings }
 					.keyboardShortcut(",")
+			}
+			CommandGroup(replacing: .help) {
+				Button("Snatch Help") { openHelp("https://github.com/Ikkakuju/snatch#readme") }
+				Button("Report an Issue") { openHelp("https://github.com/Ikkakuju/snatch/issues") }
 			}
 			CommandMenu("Downloads") {
 				Button("Paste Link and Get") { Task { await store.pasteAndGet() } }
@@ -86,6 +90,23 @@ struct RootView: View {
 		}
 		.ignoresSafeArea()
 		.frame(minWidth: 760, minHeight: 480)
+		// "Drop one on this window" has to mean the window, not just the grid.
+		.dropDestination(for: URL.self) { urls, _ in
+			guard let url = urls.first else { return false }
+			switch store.section {
+			case .browse, .settings: return false
+			default: break
+			}
+			let text = url.absoluteString
+			store.linkDraft = text
+			// Before yt-dlp exists a drop cannot resolve: keep it for the install to pick up.
+			if store.canProbe {
+				Task { await store.probe(text) }
+			} else {
+				store.deferredLink = text
+			}
+			return true
+		}
 	}
 }
 
@@ -102,7 +123,13 @@ struct Sidebar: View {
 					.frame(width: 34, height: 34)
 				VStack(alignment: .leading, spacing: 1) {
 					Text("Snatch").font(.headline)
-					Text("\(store.jobs.count) downloads").font(.caption).foregroundStyle(.secondary)
+					Text(
+						store.jobs.count == 1
+							? String(localized: "1 download")
+							: String(localized: "\(store.jobs.count) downloads")
+					)
+					.font(.caption)
+					.foregroundStyle(.secondary)
 				}
 			}
 			.padding(.horizontal, 10)
@@ -136,7 +163,8 @@ struct Sidebar: View {
 	private func heading(_ title: LocalizedStringKey) -> some View {
 		Text(title)
 			.font(.caption.weight(.semibold))
-			.foregroundStyle(.tertiary)
+			// `.tertiary` is ~30% white on #100E18 — about 2.2:1, below AA for text.
+			.foregroundStyle(.secondary)
 			.padding(.horizontal, 10)
 			.padding(.bottom, 2)
 	}
@@ -159,7 +187,8 @@ struct Sidebar: View {
 				}
 			}
 			.padding(.horizontal, 10)
-			.frame(height: 32)
+			.padding(.vertical, 7)
+			.frame(minHeight: 32)
 			.background(
 				selected ? Brand.accent.opacity(0.22) : .clear, in: RoundedRectangle(cornerRadius: 8)
 			)
@@ -206,18 +235,6 @@ struct DownloadsPage: View {
 			.frame(maxWidth: 1200)
 			.frame(maxWidth: .infinity)
 		}
-		.dropDestination(for: URL.self) { urls, _ in
-			guard let url = urls.first else { return false }
-			let text = url.absoluteString
-			store.linkDraft = text
-			// Before yt-dlp exists a drop cannot resolve: keep it for the install to pick up.
-			if store.canProbe {
-				Task { await store.probe(text) }
-			} else {
-				store.deferredLink = text
-			}
-			return true
-		}
 	}
 
 	private var emptyTitle: LocalizedStringKey {
@@ -229,6 +246,20 @@ struct DownloadsPage: View {
 	}
 
 	@ViewBuilder private var notices: some View {
+		if store.pausedAtLaunch > 0 {
+			HStack(spacing: 12) {
+				Label(
+					"Snatch quit while downloading. \(store.pausedAtLaunch) paused.",
+					systemImage: "pause.circle"
+				)
+				.font(.callout)
+				.foregroundStyle(.secondary)
+				Spacer()
+				Button("Resume All") { store.resumeAll() }
+					.buttonStyle(.borderedProminent)
+			}
+			.frame(maxWidth: 760, alignment: .leading)
+		}
 		if store.needsFFmpeg {
 			InstallCard(
 				component: .ffmpeg, title: "Install ffmpeg to save videos",
@@ -298,9 +329,10 @@ struct LinkBar: View {
 				Button(action: submit) {
 					Text("Get")
 						.font(.headline)
-						.foregroundStyle(.white)
+						.foregroundStyle(.black)
 						.padding(.horizontal, 22)
-						.frame(height: 36)
+						.padding(.vertical, 8)
+						.frame(minHeight: 36)
 						.background(Brand.gradient, in: Capsule())
 				}
 				.buttonStyle(.plain)
@@ -311,7 +343,8 @@ struct LinkBar: View {
 		}
 		.padding(.leading, 20)
 		.padding(.trailing, 8)
-		.frame(height: 50)
+		.padding(.vertical, 4)
+		.frame(minHeight: 50)
 		.background(Brand.surface, in: Capsule())
 		.overlay(Capsule().strokeBorder(Brand.stroke))
 		.frame(maxWidth: 760)
@@ -373,7 +406,8 @@ struct FirstRunGuide: View {
 			Text("\(number)")
 				.font(.caption.weight(.semibold).monospacedDigit())
 				.foregroundStyle(number == 1 ? Brand.light : .secondary)
-				.frame(width: 22, height: 22)
+				.padding(.horizontal, 5)
+				.frame(minWidth: 22, minHeight: 22)
 				.background(Brand.accent.opacity(0.18), in: Circle())
 				.accessibilityHidden(true)
 			Text(text)
@@ -397,7 +431,7 @@ struct InstallCard: View {
 			Image(systemName: "shippingbox.fill")
 				.font(.title2)
 				.foregroundStyle(.tint)
-				.frame(width: 40, height: 40)
+				.frame(minWidth: 40, minHeight: 40)
 				.background(.tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 10))
 			VStack(alignment: .leading, spacing: 4) {
 				Text(title).font(.headline)
@@ -481,6 +515,21 @@ struct JobCard: View {
 	@Environment(Store.self) private var store
 	let job: Job
 	@State private var hovering = false
+	@State private var confirmingRemove = false
+
+	/// A finished row is only a record; anything else still owns a partials folder.
+	private var deletesPartials: Bool {
+		if case .done = job.state { return false }
+		return true
+	}
+
+	private func requestRemove() {
+		if deletesPartials {
+			confirmingRemove = true
+		} else {
+			store.remove(job.id)
+		}
+	}
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 8) {
@@ -530,6 +579,11 @@ struct JobCard: View {
 		.onTapGesture(count: 2) { if case let .done(file) = job.state { store.open(file) } }
 		.contextMenu { menu }
 		.help(job.title)
+		.confirmationDialog("Remove this download?", isPresented: $confirmingRemove) {
+			Button("Remove", role: .destructive) { store.remove(job.id) }
+		} message: {
+			Text("Its partial download is deleted. A finished video stays in your folder.")
+		}
 	}
 
 	private var fraction: Double? {
@@ -574,7 +628,7 @@ struct JobCard: View {
 			case let .done(file):
 				CircleButton(symbol: "magnifyingglass", help: "Show in Finder") { store.reveal(file) }
 			}
-			CircleButton(symbol: "xmark", help: "Remove") { store.remove(job.id) }
+			CircleButton(symbol: "xmark", help: "Remove") { requestRemove() }
 		}
 		.padding(8)
 	}
@@ -596,7 +650,7 @@ struct JobCard: View {
 			NSPasteboard.general.setString(job.pageURL, forType: .string)
 		}
 		Divider()
-		Button("Remove", role: .destructive) { store.remove(job.id) }
+		Button("Remove", role: .destructive) { requestRemove() }
 	}
 
 	private var status: String {
@@ -661,8 +715,9 @@ struct CircleButton: View {
 	var body: some View {
 		Button(action: action) {
 			Image(systemName: symbol)
-				.font(.system(size: 11, weight: .bold))
-				.frame(width: 26, height: 26)
+				.font(.system(.caption2, weight: .bold))
+				.padding(6)
+				.frame(minWidth: 26, minHeight: 26)
 				.background(.ultraThinMaterial, in: Circle())
 				.contentShape(Circle())
 		}
@@ -682,7 +737,7 @@ struct Thumbnail: View {
 				AsyncImage(url: url) { image in
 					image.resizable().aspectRatio(contentMode: .fill)
 				} placeholder: {
-					Image(systemName: "film").font(.title).foregroundStyle(.tertiary)
+					Image(systemName: "film").font(.title).foregroundStyle(.secondary)
 				}
 			}
 			.clipShape(RoundedRectangle(cornerRadius: 10))
@@ -700,6 +755,11 @@ struct SettingsPage: View {
 		@Bindable var store = store
 		Form {
 			Section("Downloads") {
+				LabeledContent("At a time") {
+					Stepper(value: $store.maxRunning, in: 1...4) {
+						Text("\(store.maxRunning)")
+					}
+				}
 				LabeledContent("Save to") {
 					HStack {
 						Text(store.folder.path)
@@ -794,7 +854,7 @@ struct ComponentRow: View {
 		HStack(spacing: 12) {
 			Image(systemName: symbol)
 				.foregroundStyle(installed ? Brand.light : .secondary)
-				.frame(width: 32, height: 32)
+				.frame(minWidth: 32, minHeight: 32)
 				.background(
 					(installed ? Brand.accent : Color.secondary).opacity(0.2),
 					in: RoundedRectangle(cornerRadius: 8)
@@ -804,6 +864,13 @@ struct ComponentRow: View {
 				Text(installed ? (version ?? "—") : String(localized: "Not installed"))
 					.font(.caption)
 					.foregroundStyle(.secondary)
+				if store.failedComponent == component, let error = store.installError {
+					Text(error)
+						.font(.caption)
+						.foregroundStyle(.red)
+						.textSelection(.enabled)
+						.fixedSize(horizontal: false, vertical: true)
+				}
 			}
 			Spacer()
 			if !installed {
@@ -819,7 +886,11 @@ struct ComponentRow: View {
 				} else {
 					Button("Check for Updates") { Task { await store.checkForUpdate() } }
 						.disabled(store.isDownloading)
-						.help(store.isDownloading ? "Pause downloads to update yt-dlp." : "")
+						.help(
+							store.isDownloading
+								? "Pause downloads to update yt-dlp."
+								: "Check yt-dlp for a new release."
+						)
 				}
 			}
 		}
@@ -828,6 +899,11 @@ struct ComponentRow: View {
 
 func formatBytes(_ bytes: Double) -> String {
 	Int64(bytes).formatted(.byteCount(style: .file))
+}
+
+/// The Help menu's destinations: the app ships no bundled documentation.
+func openHelp(_ address: String) {
+	if let url = URL(string: address) { NSWorkspace.shared.open(url) }
 }
 
 func formatTime(_ seconds: Double) -> String {

@@ -69,7 +69,13 @@ func engineError(from stderr: [String]) -> EngineError {
 
 public enum Engine {
 	public static func probe(_ url: String, options: EngineOptions) async throws -> MediaInfo {
-		let result = try await ProcessRunner.run(AppPaths.ytDlp, options.common + ["-J", "--", url])
+		// A page yt-dlp cannot parse must not leave the link bar spinning for ever.
+		let result = try await ProcessRunner.run(
+			AppPaths.ytDlp, options.common + ["-J", "--", url], limit: .seconds(90)
+		)
+		if result.timedOut {
+			throw EngineError(message: "yt-dlp took too long to read this page.")
+		}
 		guard result.status == 0 else {
 			throw engineError(from: result.stderr.components(separatedBy: "\n"))
 		}

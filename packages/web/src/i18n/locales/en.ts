@@ -7,6 +7,8 @@ export const en = {
 		setup: "First launch",
 		download: "Download",
 		menu: "Menu",
+		skip: "Skip to content",
+		issues: "Issues",
 	},
 	errors: {
 		generic: "Something went wrong. Try again.",
@@ -20,19 +22,24 @@ export const en = {
 	seo: {
 		homeTitle: "Snatch – Free Video Downloader for Mac | snatchvideos",
 		homeDescription:
-			"Snatch is a free, open-source Mac app that downloads video from YouTube, X, TikTok, Instagram, Bilibili and thousands of other sites as MP4 or MP3.",
+			"Snatch is a free, open-source Mac app that downloads video from YouTube, X, TikTok, Instagram, Bilibili and 1,800 other sites as MP4 or MP3.",
 	},
 	home: {
 		whatsNew: "New: the built-in browser",
 		tagline: "Paste a link. Keep the video.",
 		subtitle:
-			"Snatch saves video from YouTube, X, TikTok, Instagram, Bilibili and 1,800 other sites to your Mac, as MP4 or MP3. For any other page, open it in the built-in browser and save what it plays.",
+			"Snatch saves video from YouTube, X, TikTok, Instagram, Bilibili and 1,800 other sites to your Mac, as MP4 or MP3.",
 		download: "Download for Mac",
 		requirements: "Free, for macOS 14 or later on Apple silicon.",
 		unsignedNote: "Unsigned build: macOS asks you to confirm it once.",
 		closingTitle: "Paste your first link.",
 		stepsToggle: "Show the steps",
 		source: "Source code on GitHub",
+		demo: {
+			get: "Get",
+			downloadVideo: "Download Video",
+			stream: "Video 1",
+		},
 		waysTitle: "Two ways to save a video",
 		ways: [
 			{
@@ -52,7 +59,7 @@ export const en = {
 			},
 			{
 				title: "Pause, quit, pick up later",
-				body: "Downloads run two at a time. Pause one or quit Snatch, and it carries on where it stopped.",
+				body: "Downloads run several at a time. Pause one or quit Snatch, and it carries on where it stopped.",
 			},
 			{
 				title: "Your sign-ins",
@@ -71,7 +78,6 @@ export const en = {
 				body: "Copy-protected streams, like Netflix or Disney+, stay encrypted. Snatch tells you when a page uses them.",
 			},
 		],
-		firstOpenTitle: "Opening Snatch the first time",
 		firstOpenIntro:
 			"Snatch is free and not notarized by Apple, so macOS asks you to confirm it once.",
 		firstOpenSteps: [

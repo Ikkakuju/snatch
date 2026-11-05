@@ -1,9 +1,11 @@
+import { ArrowUpRight, CaretRight } from "@phosphor-icons/react";
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronRight, Github, Globe } from "lucide-react";
 import { useEffect } from "react";
-import { BrowseDemo, LinkDemo } from "../components/Demos";
+import { AppWindow } from "../components/AppWindow";
+import { Backdrop } from "../components/Backdrop";
+import { BrowseDemo } from "../components/Demos";
 import { DownloadButton } from "../components/DownloadButton";
-import { DOWNLOAD_URL, REPO_URL } from "../config";
+import { DOWNLOAD_URL } from "../config";
 import { en } from "../i18n";
 import { useI18n } from "../i18n/context";
 import { pageHead, SITE_URL } from "../seo";
@@ -31,6 +33,19 @@ export const Route = createFileRoute("/")({
 	component: Home,
 });
 
+/** A hairline rule with a mono label, the page's only section marker. */
+function SectionMark({ label, heading = false }: { label: string; heading?: boolean }) {
+	return (
+		<div className="flex items-center gap-4">
+			{heading ? (
+				<h2 className="label text-brand">{label}</h2>
+			) : (
+				<span className="label text-brand">{label}</span>
+			)}
+		</div>
+	);
+}
+
 function Home() {
 	const { t } = useI18n();
 	useEffect(() => {
@@ -38,135 +53,137 @@ function Home() {
 	}, [t.seo.homeTitle]);
 
 	return (
-		<main className="relative isolate text-paper">
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[1100px] bg-[radial-gradient(ellipse_70%_60%_at_50%_0%,rgba(90,58,255,0.38),transparent_70%)]"
-			/>
-			<div
-				aria-hidden="true"
-				className="hero-pattern pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px]"
-			/>
+		<main id="main" className="relative isolate text-paper">
+			<section className="relative overflow-hidden border-b border-line">
+				<div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
+					<Backdrop className="h-full w-full" />
+					{/* The limb stays at the edges; the reading area stays black. */}
+					<div className="absolute inset-0 bg-[radial-gradient(52%_46%_at_50%_42%,rgba(0,0,0,0.88),transparent_74%)]" />
+				</div>
 
-			<section className="mx-auto max-w-5xl px-4 pt-14 pb-20 text-center sm:pt-16 sm:pb-24">
-				<a
-					href={`${REPO_URL}/releases/latest`}
-					className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/40 bg-brand/10 py-1.5 pr-3 pl-1.5 text-sm text-[#c9bdff] transition-colors hover:border-brand/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
-				>
-					<span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-white">
-						<Globe className="h-3.5 w-3.5" aria-hidden="true" />
-					</span>
-					{t.home.whatsNew}
-					<ChevronRight className="h-4 w-4" aria-hidden="true" />
-				</a>
-				<h1 className="mx-auto max-w-4xl font-['Outfit'] text-[3.25rem] leading-[1.02] font-semibold tracking-[-0.04em] text-balance whitespace-pre-line sm:text-7xl">
-					{t.home.tagline}
-				</h1>
-				<p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-pretty text-[#b9b2d6] sm:text-lg">
-					{t.home.subtitle}
-				</p>
-				<div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-8">
-					<DownloadButton className="h-14 w-full px-8 text-base sm:w-auto">
-						{t.home.download}
-					</DownloadButton>
+				<div className="mx-auto max-w-6xl px-5 pt-24 pb-14 text-center sm:px-8 sm:pt-28 sm:pb-16">
 					<a
-						href={REPO_URL}
-						className="inline-flex items-center gap-2 text-sm text-[#b9b2d6] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						href="#features"
+						className="label inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-4 py-2 text-muted transition-colors hover:border-brand/50 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
-						<Github className="h-4 w-4" aria-hidden="true" />
-						{t.home.source}
+						<span className="h-1.5 w-1.5 rounded-full bg-brand" />
+						{t.home.whatsNew}
+						<CaretRight weight="bold" className="h-3 w-3" aria-hidden="true" />
 					</a>
-				</div>
-				<p className="mt-4 text-sm text-[#8f86b8]">{t.home.requirements}</p>
-				{/* The moment of commitment: say why macOS will object, here, not three screens down. */}
-				<a
-					href="#setup"
-					className="mt-2 inline-flex items-center gap-1 text-sm text-[#c9bdff] transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
-				>
-					{t.home.unsignedNote}
-					<ChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
-				</a>
-				<div className="mt-10 sm:mt-12">
-					<LinkDemo />
-				</div>
-			</section>
 
-			<section id="features" className="scroll-mt-16 border-t border-white/[0.08]">
-				<div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
-					<div>
-						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
-							{t.home.waysTitle}
-						</h2>
-						<div className="mt-10 space-y-8">
-							{t.home.ways.map((way) => (
-								<div key={way.title} className="border-l-2 border-brand pl-5">
-									<h3 className="text-lg font-semibold">{way.title}</h3>
-									<p className="mt-2 max-w-md leading-relaxed text-[#b9b2d6]">{way.body}</p>
-								</div>
-							))}
-						</div>
+					<h1 className="mx-auto mt-8 max-w-4xl text-[clamp(2.75rem,6.2vw,4.75rem)] leading-[1.02] font-semibold tracking-[-0.04em] text-balance whitespace-pre-line">
+						{t.home.tagline}
+					</h1>
+					<p className="mx-auto mt-6 max-w-xl text-[15px] leading-7 text-balance text-muted sm:text-base">
+						{t.home.subtitle}
+					</p>
+
+					<div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+						<DownloadButton className="h-12 w-full px-7 sm:w-auto">
+							{t.home.download}
+						</DownloadButton>
+						<a
+							href="#features"
+							className="label inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-line px-6 text-muted transition-colors hover:border-white/25 hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand sm:w-auto"
+						>
+							{t.nav.features}
+							<CaretRight weight="bold" className="h-3 w-3" aria-hidden="true" />
+						</a>
 					</div>
-					<BrowseDemo />
+
+					<div className="mt-5 flex flex-col items-center gap-1.5">
+						<p className="text-[13px] leading-5 text-dim">{t.home.requirements}</p>
+						<a
+							href="#setup"
+							className="inline-flex items-center gap-1 text-[13px] leading-5 text-brand transition-colors hover:text-brand-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+						>
+							{t.home.unsignedNote}
+							<ArrowUpRight weight="bold" className="h-3 w-3" aria-hidden="true" />
+						</a>
+					</div>
+
+					<div className="mt-14 sm:mt-16">
+						<AppWindow />
+					</div>
 				</div>
 			</section>
 
-			<section className="border-t border-white/[0.08]">
-				<div className="mx-auto max-w-6xl px-4 py-20 sm:py-28">
-					<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-						{t.home.featuresTitle}
-					</h2>
-					<dl className="mt-12 grid gap-x-12 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+			<section id="features" className="scroll-mt-14">
+				<div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+					<SectionMark label={t.nav.features} />
+					<div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+						<div>
+							<h2 className="max-w-md text-3xl leading-tight font-semibold tracking-[-0.03em] text-balance sm:text-4xl">
+								{t.home.waysTitle}
+							</h2>
+							<div className="mt-8 space-y-3">
+								{t.home.ways.map((way, index) => (
+									<div key={way.title} className="rounded-lg bg-white/[0.025] px-5 py-4">
+										<div className="flex items-baseline gap-3">
+											<span className="label text-brand">{String(index + 1).padStart(2, "0")}</span>
+											<h3 className="text-base font-medium text-paper">{way.title}</h3>
+										</div>
+										<p className="mt-2 text-sm leading-6 text-muted">{way.body}</p>
+									</div>
+								))}
+							</div>
+						</div>
+						<BrowseDemo />
+					</div>
+				</div>
+			</section>
+
+			<section>
+				<div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+					<SectionMark label={t.home.featuresTitle} heading />
+					<dl className="mt-8 grid gap-y-8 sm:grid-cols-2 sm:gap-x-12">
 						{t.home.features.map((feature) => (
 							<div key={feature.title}>
-								<dt className="font-semibold">{feature.title}</dt>
-								<dd className="mt-2 max-w-sm leading-relaxed text-[#b9b2d6]">{feature.body}</dd>
+								<dt className="text-[15px] font-medium text-paper">{feature.title}</dt>
+								<dd className="mt-2 max-w-md text-sm leading-6 text-muted">{feature.body}</dd>
 							</div>
 						))}
 					</dl>
 				</div>
 			</section>
 
-			<section id="setup" className="scroll-mt-16 border-t border-white/[0.08]">
-				<div className="mx-auto grid max-w-6xl gap-10 px-4 pt-20 pb-16 sm:pt-28 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-20">
-					<div>
-						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
-							{t.home.firstOpenTitle}
-						</h2>
-						<p className="mt-5 max-w-md leading-relaxed text-[#b9b2d6]">{t.home.firstOpenIntro}</p>
+			<section id="setup" className="scroll-mt-14">
+				<div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
+					<SectionMark label={t.nav.setup} heading />
+					<div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-16">
+						<p className="max-w-sm text-[15px] leading-7 text-muted">{t.home.firstOpenIntro}</p>
+						<details className="group w-fit rounded-lg bg-white/[0.025]">
+							<summary className="flex cursor-pointer list-none items-center gap-3 px-5 py-3.5 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+								<CaretRight
+									weight="bold"
+									className="h-3.5 w-3.5 shrink-0 text-brand transition-transform group-open:rotate-90"
+									aria-hidden="true"
+								/>
+								<span className="label text-paper">{t.home.stepsToggle}</span>
+							</summary>
+							<ol className="px-5 pb-2">
+								{t.home.firstOpenSteps.map((step) => (
+									<li key={step} className="py-3 text-sm leading-6 text-muted">
+										{step}
+									</li>
+								))}
+							</ol>
+						</details>
 					</div>
-					<details className="group self-start rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 open:bg-white/[0.03]">
-						<summary className="flex cursor-pointer list-none items-center gap-2 font-semibold marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light">
-							<ChevronRight
-								className="h-4 w-4 shrink-0 text-[#c9bdff] transition-transform group-open:rotate-90"
-								aria-hidden="true"
-							/>
-							{t.home.stepsToggle}
-						</summary>
-						<ol className="mt-6 space-y-6">
-							{t.home.firstOpenSteps.map((step, index) => (
-								<li key={step} className="flex gap-5">
-									<span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-brand/60 font-['Outfit'] font-semibold text-[#c9bdff]">
-										{index + 1}
-									</span>
-									<p className="pt-1.5 leading-relaxed text-paper/90">{step}</p>
-								</li>
-							))}
-						</ol>
-					</details>
 				</div>
-				{/* The page ends on the win, not on the warning. */}
-				<div className="mx-auto max-w-6xl px-4 pb-20 sm:pb-28">
-					<div className="rounded-3xl border border-brand/25 bg-brand/[0.07] px-6 py-12 text-center sm:px-12 sm:py-16">
-						<h2 className="font-['Outfit'] text-4xl font-semibold tracking-[-0.03em] text-balance sm:text-5xl">
-							{t.home.closingTitle}
-						</h2>
-						<p className="mx-auto mt-4 max-w-xl text-pretty leading-relaxed text-[#b9b2d6]">
-							{t.home.requirements}
-						</p>
-						<div className="mt-8 flex justify-center">
-							<DownloadButton className="h-14 px-8 text-base">{t.home.download}</DownloadButton>
-						</div>
+			</section>
+
+			<section>
+				<div className="mx-auto max-w-3xl px-5 py-20 text-center sm:px-8 sm:py-28">
+					<h2 className="text-4xl leading-tight font-semibold tracking-[-0.035em] text-balance sm:text-5xl">
+						{t.home.closingTitle}
+					</h2>
+					<div className="mt-8 flex justify-center">
+						<DownloadButton className="h-12 w-full px-7 sm:w-auto">
+							{t.home.download}
+						</DownloadButton>
 					</div>
+					<p className="mt-6 text-[13px] leading-5 text-dim">{t.home.requirements}</p>
 				</div>
 			</section>
 		</main>

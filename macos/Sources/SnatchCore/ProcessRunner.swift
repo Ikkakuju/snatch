@@ -5,6 +5,8 @@ public struct ProcessResult: Sendable {
 	public let status: Int32
 	public let stdout: String
 	public let stderr: String
+	/// True when the run was stopped by its time limit rather than by the child.
+	public let timedOut: Bool
 }
 
 public enum ProcessError: LocalizedError {
@@ -129,10 +131,42 @@ func readLines(_ handle: FileHandle, _ line: (String) -> Void) {
 	try? handle.close()
 }
 
+/// Set from the watchdog and read after the child exits, so it needs its own lock.
+private final class StopFlag: @unchecked Sendable {
+	private let lock = NSLock()
+	private var stopped = false
+
+	func markStopped() {
+		lock.lock()
+		stopped = true
+		lock.unlock()
+	}
+
+	var isStopped: Bool {
+		lock.lock()
+		defer { lock.unlock() }
+		return stopped
+	}
+}
+
 public enum ProcessRunner {
-	/// Runs to completion and collects the output.
-	public static func run(_ executable: URL, _ arguments: [String]) async throws -> ProcessResult {
+	/// Runs to completion and collects the output. With `limit`, the whole process
+	/// group is stopped when it elapses and `timedOut` says so.
+	public static func run(
+		_ executable: URL, _ arguments: [String], limit: Duration? = nil
+	) async throws -> ProcessResult {
 		let child = try ChildProcess(executable, arguments)
+		let flag = StopFlag()
+		let watchdog = limit.map { limit in
+			Task.detached {
+				try? await Task.sleep(for: limit)
+				guard !Task.isCancelled else { return }
+				flag.markStopped()
+				child.terminate()
+			}
+		}
+		defer { watchdog?.cancel() }
+
 		var out: [String] = []
 		var err: [String] = []
 		for await (isError, line) in child.lines {
@@ -141,7 +175,8 @@ public enum ProcessRunner {
 		return ProcessResult(
 			status: await child.wait(),
 			stdout: out.joined(separator: "\n"),
-			stderr: err.joined(separator: "\n")
+			stderr: err.joined(separator: "\n"),
+			timedOut: flag.isStopped
 		)
 	}
 }

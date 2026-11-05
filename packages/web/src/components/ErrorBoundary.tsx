@@ -1,4 +1,4 @@
-import { AlertCircle, RefreshCw } from "lucide-react";
+import { ArrowClockwise, WarningCircle } from "@phosphor-icons/react";
 import { Component, type ReactNode } from "react";
 import { Sentry } from "../lib/sentry";
 
@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
 					<div className="max-w-md w-full space-y-6 text-center">
 						<div className="flex justify-center">
 							<div className="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center">
-								<AlertCircle className="w-8 h-8 text-red-500" />
+								<WarningCircle className="w-8 h-8 text-red-500" />
 							</div>
 						</div>
 
@@ -84,7 +84,7 @@ export class ErrorBoundary extends Component<Props, State> {
 								onClick={this.handleReset}
 								className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-medium transition-all duration-200 flex items-center justify-center gap-2"
 							>
-								<RefreshCw className="w-4 h-4" />
+								<ArrowClockwise className="w-4 h-4" />
 								{this.props.labels?.retry ?? "Try again"}
 							</button>
 							<button

@@ -1,4 +1,4 @@
-import { Github, Menu, X } from "lucide-react";
+import { GithubLogo, List, X } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
 import { REPO_URL } from "../config";
 import { useI18n } from "../i18n/context";
@@ -35,7 +35,7 @@ export function MobileMenu() {
 	}, [open]);
 
 	return (
-		<div ref={rootRef} className="relative flex h-16 items-center md:hidden">
+		<div ref={rootRef} className="relative flex h-9 items-center md:hidden">
 			<button
 				ref={triggerRef}
 				type="button"
@@ -43,12 +43,12 @@ export function MobileMenu() {
 				aria-controls={open ? "mobile-menu" : undefined}
 				aria-label={t.nav.menu}
 				onClick={() => setOpen((current) => !current)}
-				className="flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-white/[0.04] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+				className="flex h-11 w-11 items-center justify-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand md:h-9 md:w-9"
 			>
 				{open ? (
-					<X className="h-4 w-4" aria-hidden="true" />
+					<X weight="bold" className="h-4 w-4" aria-hidden="true" />
 				) : (
-					<Menu className="h-4 w-4" aria-hidden="true" />
+					<List weight="bold" className="h-4 w-4" aria-hidden="true" />
 				)}
 			</button>
 
@@ -56,25 +56,25 @@ export function MobileMenu() {
 				<nav
 					id="mobile-menu"
 					aria-label={t.nav.menu}
-					className="absolute top-full right-0 z-50 mt-2 w-52 rounded-lg border border-white/10 bg-[#14111f] p-1.5 shadow-2xl"
+					className="absolute top-full right-0 z-50 mt-2 w-56 border border-line bg-black p-1"
 				>
 					<a
 						href="#features"
-						className="block rounded-md px-3 py-3 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="label flex h-11 items-center px-3 text-muted transition-colors hover:bg-white/[0.04] hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
 						{t.nav.features}
 					</a>
 					<a
 						href="#setup"
-						className="block rounded-md px-3 py-3 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="label flex h-11 items-center px-3 text-muted transition-colors hover:bg-white/[0.04] hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
 						{t.nav.setup}
 					</a>
 					<a
 						href={REPO_URL}
-						className="flex items-center gap-2 rounded-md px-3 py-3 text-sm text-gray-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="label flex h-11 items-center gap-2 px-3 text-muted transition-colors hover:bg-white/[0.04] hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
-						<Github className="h-4 w-4" aria-hidden="true" />
+						<GithubLogo weight="bold" className="h-4 w-4" aria-hidden="true" />
 						GitHub
 					</a>
 				</nav>

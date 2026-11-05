@@ -75,6 +75,17 @@ import Testing
 	#expect(result.status == 3)
 	#expect(result.stdout == "out")
 	#expect(result.stderr == "err")
+	#expect(result.timedOut == false)
+}
+
+@Test func runStopsWhenItsTimeLimitElapses() async throws {
+	let started = ContinuousClock.now
+	let result = try await ProcessRunner.run(
+		URL(fileURLWithPath: "/bin/sh"), ["-c", "sleep 30"], limit: .milliseconds(200)
+	)
+	#expect(result.timedOut)
+	#expect(result.status != 0)
+	#expect(started.duration(to: .now) < .seconds(5))
 }
 
 @Test func browserCookiesExportAsNetscapeLines() throws {

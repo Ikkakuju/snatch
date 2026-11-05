@@ -1,50 +1,49 @@
-import { Apple, Github } from "lucide-react";
-import { DOWNLOAD_URL, REPO_URL } from "../config";
+import { GithubLogo } from "@phosphor-icons/react";
+import { REPO_URL } from "../config";
 import { useI18n } from "../i18n/context";
 import { Logo } from "./Logo";
 
-/** Site footer: brand, license and the legal note, closed by a quiet download link. */
+/** Site footer: brand, the legal line and the credits, and nothing that repeats the CTA. */
 export function SiteFooter() {
 	const { t } = useI18n();
 
 	return (
-		<footer className="border-t border-white/[0.08]">
-			<div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-start sm:justify-between">
-				<div className="space-y-2">
+		<footer className="border-t border-line">
+			<div className="mx-auto flex max-w-6xl flex-col gap-8 px-5 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-8">
+				<div className="space-y-3">
 					<a
 						href="/"
 						aria-label="Snatch"
-						className="inline-block rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="inline-block rounded-[2px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
-						<Logo className="text-base" />
+						<Logo />
 					</a>
-					<p className="max-w-md text-xs leading-relaxed text-gray-400">{t.home.legal}</p>
-					<p className="max-w-md text-[11px] leading-relaxed text-gray-400">
+					<p className="max-w-md text-xs leading-5 text-dim">{t.home.legal}</p>
+					<p className="max-w-md text-[11px] leading-4 text-dim">
 						Stills from Big Buck Bunny and Sintel by the Blender Foundation, CC BY 3.0.
 					</p>
 				</div>
-				<nav className="flex flex-wrap items-center gap-5 text-sm text-gray-400">
-					<a
-						href={DOWNLOAD_URL}
-						className="inline-flex items-center gap-1.5 text-gray-200 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
-					>
-						<Apple className="h-4 w-4" aria-hidden="true" />
-						{t.home.download}
-					</a>
+				<div className="label flex flex-wrap items-center gap-x-6 gap-y-3 text-muted">
 					<a
 						href={REPO_URL}
-						className="inline-flex items-center gap-1.5 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="inline-flex items-center gap-2 transition-colors hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
-						<Github className="h-4 w-4" aria-hidden="true" />
+						<GithubLogo weight="bold" className="h-3.5 w-3.5" aria-hidden="true" />
 						GitHub
 					</a>
 					<a
+						href={`${REPO_URL}/issues`}
+						className="transition-colors hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+					>
+						{t.nav.issues}
+					</a>
+					<a
 						href={`${REPO_URL}/blob/main/LICENSE`}
-						className="transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-light"
+						className="transition-colors hover:text-paper focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
 					>
 						MIT
 					</a>
-				</nav>
+				</div>
 			</div>
 		</footer>
 	);
