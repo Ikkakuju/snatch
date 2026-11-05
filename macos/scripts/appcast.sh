@@ -40,6 +40,9 @@ ARGS=(
 )
 if [ -n "${SPARKLE_PRIVATE_KEY:-}" ]; then
 	printf '%s' "$SPARKLE_PRIVATE_KEY" | tr -d '\n' | "$GENERATE" --ed-key-file - "${ARGS[@]}"
+elif [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+	echo "SPARKLE_PRIVATE_KEY is not set; add the EdDSA private key as a repository secret" >&2
+	exit 1
 else
 	"$GENERATE" --account "${SPARKLE_ACCOUNT:-snatch}" "${ARGS[@]}"
 fi
