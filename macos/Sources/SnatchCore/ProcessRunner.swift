@@ -172,11 +172,13 @@ public enum ProcessRunner {
 		for await (isError, line) in child.lines {
 			if isError { err.append(line) } else { out.append(line) }
 		}
+		let status = await child.wait()
 		return ProcessResult(
-			status: await child.wait(),
+			status: status,
 			stdout: out.joined(separator: "\n"),
 			stderr: err.joined(separator: "\n"),
-			timedOut: flag.isStopped
+			// A child that finished inside the watchdog window exits 0 and is not a timeout.
+			timedOut: flag.isStopped && status != 0
 		)
 	}
 }

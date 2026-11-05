@@ -37,7 +37,6 @@ export const fr: Messages = {
 			"Version non signée : macOS vous demande une confirmation lors de la première ouverture.",
 		closingTitle: "Collez votre premier lien.",
 		stepsToggle: "Voir les étapes",
-		source: "Code source sur GitHub",
 		demo: {
 			get: "Obtenir",
 			downloadVideo: "Télécharger la vidéo",

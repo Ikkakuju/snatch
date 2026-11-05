@@ -36,7 +36,6 @@ export const it: Messages = {
 		unsignedNote: "Build non firmata: macOS richiederà una conferma al primo avvio.",
 		closingTitle: "Incolla il tuo primo link.",
 		stepsToggle: "Mostra i passaggi",
-		source: "Codice sorgente su GitHub",
 		demo: {
 			get: "Scarica",
 			downloadVideo: "Scarica video",

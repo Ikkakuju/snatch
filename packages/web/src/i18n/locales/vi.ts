@@ -36,7 +36,6 @@ export const vi: Messages = {
 		unsignedNote: "Bản dựng chưa ký số: macOS sẽ yêu cầu bạn xác nhận ở lần mở đầu tiên.",
 		closingTitle: "Dán liên kết đầu tiên của bạn.",
 		stepsToggle: "Xem các bước",
-		source: "Mã nguồn trên GitHub",
 		demo: {
 			get: "Lấy",
 			downloadVideo: "Tải video",

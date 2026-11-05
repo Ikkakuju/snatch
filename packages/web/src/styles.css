@@ -14,14 +14,6 @@ html {
 	scroll-behavior: smooth;
 }
 
-/* A printable grain over the flat black; keeps large dark areas from banding. */
-.grain {
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
-	background-size: 160px 160px;
-	opacity: 0.05;
-	mix-blend-mode: soft-light;
-}
-
 /* Brand-coloured selection in every region, header and footer included. */
 ::selection {
 	background-color: rgb(167 139 250 / 0.3);
@@ -65,32 +57,6 @@ body {
 	--color-line: rgb(255 255 255 / 0.09);
 	--color-brand: #a78bfa;
 	--color-brand-light: #c4b5fd;
-}
-
-/* The hero demo's one moment: the choices drop in, then the download fills. */
-@keyframes demo-drop {
-	from {
-		opacity: 0;
-		transform: translateY(-14px);
-	}
-}
-@keyframes demo-fill {
-	from {
-		width: 0;
-	}
-}
-.demo-drop {
-	animation: demo-drop 0.5s 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.demo-fill {
-	width: 62%;
-	animation: demo-fill 1.6s 1s cubic-bezier(0.3, 0.7, 0.3, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-	.demo-drop,
-	.demo-fill {
-		animation: none;
-	}
 }
 
 /* Japanese and Chinese have no spaces between words: `text-balance` splits them

@@ -36,7 +36,6 @@ export const ko: Messages = {
 		unsignedNote: "미서명 빌드: 최초 실행 시 macOS에서 한 번 확인을 요청합니다.",
 		closingTitle: "첫 링크를 붙여넣어 보세요.",
 		stepsToggle: "설치 단계 보기",
-		source: "GitHub에서 소스 코드 보기",
 		demo: {
 			get: "가져오기",
 			downloadVideo: "동영상 저장",

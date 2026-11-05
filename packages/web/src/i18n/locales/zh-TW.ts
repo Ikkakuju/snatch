@@ -36,7 +36,6 @@ export const zhTW: Messages = {
 		unsignedNote: "未簽署版本：macOS 會在首次開啟時提示確認一次。",
 		closingTitle: "貼上你的第一個連結。",
 		stepsToggle: "查看操作步驟",
-		source: "在 GitHub 上查看原始碼",
 		demo: {
 			get: "解析",
 			downloadVideo: "下載影片",

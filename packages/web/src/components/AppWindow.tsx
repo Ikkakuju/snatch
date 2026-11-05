@@ -1,5 +1,6 @@
 import { CheckCircle, Clock, FilmStrip, Link as LinkIcon } from "@phosphor-icons/react";
 import { useI18n } from "../i18n/context";
+import { Still } from "./Still";
 
 /*
  * A window of the actual app, drawn with HTML so it never goes stale: sidebar, the
@@ -7,18 +8,6 @@ import { useI18n } from "../i18n/context";
  */
 
 const panel = "bg-white/[0.035]";
-
-function Still({ src, className = "" }: { src: string; className?: string }) {
-	return (
-		<span className={`relative block overflow-hidden bg-brand/80 ${className}`}>
-			<img
-				src={src}
-				alt=""
-				className="h-full w-full object-cover opacity-90 mix-blend-luminosity grayscale brightness-[0.78] contrast-[1.08]"
-			/>
-		</span>
-	);
-}
 
 function SidebarRow({
 	label,

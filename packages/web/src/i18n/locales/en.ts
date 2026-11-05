@@ -34,7 +34,6 @@ export const en = {
 		unsignedNote: "Unsigned build: macOS asks you to confirm it once.",
 		closingTitle: "Paste your first link.",
 		stepsToggle: "Show the steps",
-		source: "Source code on GitHub",
 		demo: {
 			get: "Get",
 			downloadVideo: "Download Video",

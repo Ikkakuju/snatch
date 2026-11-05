@@ -37,7 +37,6 @@ export const ru: Messages = {
 			"Сборка без цифровой подписи: macOS попросит подтвердить запуск при первом открытии.",
 		closingTitle: "Вставьте первую ссылку.",
 		stepsToggle: "Показать шаги",
-		source: "Исходный код на GitHub",
 		demo: {
 			get: "Загрузить",
 			downloadVideo: "Скачать видео",

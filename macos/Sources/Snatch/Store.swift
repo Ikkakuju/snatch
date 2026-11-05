@@ -52,8 +52,12 @@ final class Store {
 	var installError: String?
 	/// Whose install failed, so Settings can show the error next to that row.
 	var failedComponent: Component?
-	/// Jobs that were mid-download when the app quit, shown as a notice at launch.
-	var pausedAtLaunch = 0
+	/// Jobs that were mid-download when the app quit; the notice counts the ones still paused.
+	var launchPaused: Set<UUID> = []
+	/// Derived, so a resumed or removed job cannot leave a stale count on screen.
+	var pausedAtLaunch: Int {
+		jobs.filter { launchPaused.contains($0.id) && $0.state == .paused }.count
+	}
 	/// The launch-time yt-dlp update check; nothing may run yt-dlp until it is done.
 	var updating = true
 	var ytDlpVersion: String?
@@ -104,7 +108,7 @@ final class Store {
 		// Nothing is running at launch: a job the app quit during waits for Resume.
 		for index in jobs.indices where jobs[index].state == .running || jobs[index].state == .queued {
 			jobs[index].state = .paused
-			pausedAtLaunch += 1
+			launchPaused.insert(jobs[index].id)
 		}
 	}
 
@@ -228,7 +232,7 @@ final class Store {
 	func resume(_ id: UUID) {
 		guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
 		jobs[index].state = .queued
-		pausedAtLaunch = 0
+		launchPaused.remove(id)
 		save()
 		pump()
 	}
@@ -241,7 +245,7 @@ final class Store {
 			default: break
 			}
 		}
-		pausedAtLaunch = 0
+		launchPaused.removeAll()
 		save()
 		pump()
 	}
@@ -262,6 +266,7 @@ final class Store {
 		guard let index = jobs.firstIndex(where: { $0.id == id }) else { return }
 		let partials = jobs[index].partials
 		let run = stop(id)
+		launchPaused.remove(id)
 		jobs.remove(at: index)
 		// Delete the partials only once the stopped yt-dlp has let go of them.
 		Task {

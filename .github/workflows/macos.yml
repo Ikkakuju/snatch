@@ -31,7 +31,13 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # appcast.sh writes release notes from the commits since the last tag.
+          fetch-depth: 0
       - run: VERSION="${GITHUB_REF_NAME#v}" macos/scripts/bundle.sh
-      - run: gh release create "$GITHUB_REF_NAME" macos/dist/Snatch.dmg --generate-notes
+      - run: macos/scripts/appcast.sh "$GITHUB_REF_NAME"
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+      - run: gh release create "$GITHUB_REF_NAME" macos/dist/Snatch.dmg macos/dist/appcast.xml --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}
