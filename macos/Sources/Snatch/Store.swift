@@ -388,7 +388,10 @@ final class Store {
 	}
 
 	private func save() {
-		try? FileManager.default.createDirectory(at: AppPaths.support, withIntermediateDirectories: true)
+		try? FileManager.default.createDirectory(
+			at: AppPaths.support, withIntermediateDirectories: true,
+			attributes: [.posixPermissions: 0o700]
+		)
 		try? JSONEncoder().encode(jobs).write(to: AppPaths.jobs, options: .atomic)
 	}
 }

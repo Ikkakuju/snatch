@@ -113,7 +113,10 @@ final class Browser: NSObject {
 		}
 		guard !cookies.isEmpty else { return }
 		let file = AppPaths.browserCookies
-		try? FileManager.default.createDirectory(at: AppPaths.support, withIntermediateDirectories: true)
+		try? FileManager.default.createDirectory(
+			at: AppPaths.support, withIntermediateDirectories: true,
+			attributes: [.posixPermissions: 0o700]
+		)
 		// Atomic replaces the file (and any symlink at that path) rather than truncating it
 		// in place, and the mode is set afterwards because the write creates it 0644.
 		try? netscapeCookieFile(cookies).write(to: file, atomically: true, encoding: .utf8)

@@ -131,7 +131,10 @@ public enum Tools {
 
 	/// Downloads the component's missing tools.
 	public static func install(_ component: Component) async throws {
-		try FileManager.default.createDirectory(at: AppPaths.bin, withIntermediateDirectories: true)
+		try FileManager.default.createDirectory(
+			at: AppPaths.bin, withIntermediateDirectories: true,
+			attributes: [.posixPermissions: 0o700]
+		)
 		for spec in toolSpecs where spec.component == component
 			&& !FileManager.default.isExecutableFile(atPath: spec.executable.path)
 		{

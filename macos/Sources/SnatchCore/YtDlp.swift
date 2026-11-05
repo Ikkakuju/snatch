@@ -111,10 +111,13 @@ public enum Engine {
 	}
 }
 
-/// `title` as literal output-template text: `%` escaped, no path separators, at most
-/// 150 characters.
+/// `title` as literal output-template text: `%` escaped, no path separators or control
+/// characters (a newline would forge a second `[snatch-file]` line), at most 150 chars.
 func literalTitle(_ title: String) -> String {
-	let clean = title.trimmingCharacters(in: .whitespacesAndNewlines)
+	let stripped = String(
+		title.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) }
+	)
+	let clean = stripped.trimmingCharacters(in: .whitespacesAndNewlines)
 		.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
 	return String((clean.isEmpty ? "video" : clean).prefix(150)).replacingOccurrences(of: "%", with: "%%")
 }
@@ -190,7 +193,7 @@ public final class DownloadRun: Sendable {
 						errors.append(line)
 					} else if let progress = parseProgress(line) {
 						continuation.yield(.progress(progress))
-					} else if line.hasPrefix(filePrefix) {
+					} else if line.hasPrefix(filePrefix), file == nil {
 						file = URL(fileURLWithPath: String(line.dropFirst(filePrefix.count)))
 					}
 				}
