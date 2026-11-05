@@ -205,7 +205,9 @@ final class Store {
 		pending = nil
 		defer { probing = false }
 		do {
-			var info = try await Engine.probe(url, options: EngineOptions(cookies: cookies, browser: browser))
+			var info = try await Engine.probe(
+				url, options: EngineOptions(cookies: cookies, browser: browser, browserCookies: liveCookieJar)
+			)
 			if let browser {
 				info.title = browser.title
 				info.thumbnail = info.thumbnail ?? thumbnail
@@ -294,6 +296,12 @@ final class Store {
 		save()
 	}
 
+	/// The exported jar, when it still exists: a resumed job may outlive it.
+	private var liveCookieJar: URL? {
+		FileManager.default.fileExists(atPath: AppPaths.browserCookies.path)
+			? AppPaths.browserCookies : nil
+	}
+
 	/// Browser jobs share one jar; keep it while any of them can still run, then delete it.
 	private func discardBrowserCookiesIfUnused() {
 		let needed = jobs.contains { job in
@@ -342,7 +350,7 @@ final class Store {
 				pageURL: job.pageURL, choice: job.choice, folder: job.folder, partials: job.partials,
 				// ponytail: a resumed browser job reuses the last exported cookies; export
 				// again here if sites start expiring them between pause and resume.
-				options: EngineOptions(cookies: cookies, browser: job.browser)
+				options: EngineOptions(cookies: cookies, browser: job.browser, browserCookies: liveCookieJar)
 			)
 			runs[job.id] = run
 			jobs[index].state = .running

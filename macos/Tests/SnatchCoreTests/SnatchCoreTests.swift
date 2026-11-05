@@ -112,7 +112,11 @@ import Testing
 }
 
 @Test func browserDownloadsAreNamedAfterTheirPage() {
-	let options = EngineOptions(cookies: .safari, browser: BrowserContext(referer: "https://a.test/v", title: "50% off: a/b"))
+	let options = EngineOptions(
+		cookies: .safari,
+		browser: BrowserContext(referer: "https://a.test/v", title: "50% off: a/b"),
+		browserCookies: URL(fileURLWithPath: "/tmp/browser-cookies.txt")
+	)
 	let choice = Choice(id: "best", kind: .video, label: "Best", sizeEstimate: nil, arguments: [])
 	let args = Engine.downloadArguments(
 		pageURL: "https://cdn.test/index.m3u8", choice: choice, folder: URL(fileURLWithPath: "/tmp"),
@@ -121,6 +125,14 @@ import Testing
 	#expect(args.contains("50%% off- a-b%(height& [{}p]|)s.%(ext)s"))
 	#expect(args.contains("--referer") && args.contains("--cookies"))
 	#expect(!args.contains("--cookies-from-browser"))
+	// A jar that is gone must not be passed: yt-dlp treats a missing path as fatal.
+	let noJar = EngineOptions(cookies: .none, browser: options.browser)
+	let noJarArgs = Engine.downloadArguments(
+		pageURL: "https://cdn.test/index.m3u8", choice: choice, folder: URL(fileURLWithPath: "/tmp"),
+		partials: URL(fileURLWithPath: "/tmp/p"), options: noJar
+	)
+	#expect(!noJarArgs.contains("--cookies"))
+	#expect(noJarArgs.contains("--referer"))
 }
 
 /// A line reaches us while the child is still running, not only at exit: progress

@@ -31,9 +31,13 @@ public struct BrowserContext: Codable, Sendable, Equatable, Hashable {
 public struct EngineOptions: Sendable {
 	public var cookies: CookieBrowser
 	public var browser: BrowserContext?
-	public init(cookies: CookieBrowser, browser: BrowserContext? = nil) {
+	/// The exported jar, or nil when there is none to read. Passed in rather than probed
+	/// from disk so the arguments stay a pure function of the options.
+	public var browserCookies: URL?
+	public init(cookies: CookieBrowser, browser: BrowserContext? = nil, browserCookies: URL? = nil) {
 		self.cookies = cookies
 		self.browser = browser
+		self.browserCookies = browserCookies
 	}
 
 	var common: [String] {
@@ -46,8 +50,8 @@ public struct EngineOptions: Sendable {
 		if let browser {
 			// A resumed job can outlive the jar (Clear Sign-ins, a wiped support folder);
 			// yt-dlp treats a missing --cookies path as fatal, so only pass a real one.
-			if FileManager.default.fileExists(atPath: AppPaths.browserCookies.path) {
-				args += ["--cookies", AppPaths.browserCookies.path]
+			if let jar = browserCookies {
+				args += ["--cookies", jar.path]
 			}
 			args += [
 				"--referer", browser.referer,
