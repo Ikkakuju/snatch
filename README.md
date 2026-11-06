@@ -64,7 +64,8 @@ Needs the Swift 6 toolchain (Xcode 16+, or the Command Line Tools).
 cd macos
 swift test                         # SnatchCore tests
 swift run Snatch                   # run from source
-VERSION=1.0.0 scripts/bundle.sh    # dist/Snatch.app + dist/Snatch.dmg (Apple silicon, ad-hoc signed)
+scripts/self-sign.sh               # once: the identity bundle.sh signs with
+VERSION=1.0.0 scripts/bundle.sh    # dist/Snatch.app + dist/Snatch.dmg (Apple silicon, self-signed)
 scripts/appcast.sh v1.0.0          # signed dist/appcast.xml (EdDSA key from the keychain)
 ```
 
@@ -79,6 +80,17 @@ generates and EdDSA-signs `appcast.xml`, and publishes both as that GitHub
 release; the website always links to `releases/latest/download/Snatch.dmg`, and
 the app reads `releases/latest/download/appcast.xml` to update itself. The
 signing key lives in the `SPARKLE_PRIVATE_KEY` repository secret.
+
+The app is signed with the stable self-signed `Snatch Self-Signed` identity, not
+ad-hoc, so macOS keeps the app's Full Disk Access grant (needed for Safari
+cookies) across updates. Make the identity once with `macos/scripts/self-sign.sh`;
+CI imports the same certificate from the `SIGNING_P12_BASE64` and
+`SIGNING_P12_PASSWORD` secrets, exported from Keychain Access as a `.p12`:
+
+```bash
+gh secret set SIGNING_P12_BASE64 --body "$(base64 -i Snatch.p12)"
+gh secret set SIGNING_P12_PASSWORD
+```
 
 ### Website
 

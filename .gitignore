@@ -48,6 +48,9 @@ uploads/
 downloads/
 secrets.json
 
+# Exported signing identity (the release p12 lives in GitHub secrets)
+*.p12
+
 # A cookie jar is a live account session
 cookies.txt
 
