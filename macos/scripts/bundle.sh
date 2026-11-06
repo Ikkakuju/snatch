@@ -1,13 +1,17 @@
 #!/bin/bash
 # Builds Snatch.app (Apple silicon only) and Snatch.dmg into macos/dist.
 #
-# The app is ad-hoc signed only: there is no Developer ID, so Gatekeeper asks the
-# user to approve it once (see the README). yt-dlp, ffmpeg and QuickJS are not
-# bundled; the app asks before downloading and verifying each.
+# Everything is signed with one stable self-signed identity, "Snatch
+# Self-Signed": macOS keys the app's permissions (Full Disk Access, for Safari
+# cookies) to its signature, and an ad-hoc one changes every build. Create the
+# identity once with scripts/self-sign.sh; CI imports the same certificate from
+# the repository secrets. It is still not notarized, so Gatekeeper asks the user
+# to approve a downloaded copy once (see the README). yt-dlp, ffmpeg and QuickJS
+# are not bundled; the app asks before downloading and verifying each.
 #
 # Sparkle.framework is linked from SwiftPM's binary artifact and embedded in
-# Contents/Frameworks so the app can update itself. It is signed the same ad-hoc
-# way, nested code first; update archives carry the EdDSA signature that Sparkle
+# Contents/Frameworks so the app can update itself. It is signed the same way,
+# nested code first; update archives carry the EdDSA signature that Sparkle
 # actually trusts.
 #
 #   VERSION=1.2.3 macos/scripts/bundle.sh
@@ -17,6 +21,13 @@ VERSION="${VERSION:-0.0.0}"
 # The version is interpolated into Info.plist; keep it to digits and dots.
 if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
 	echo "VERSION must look like 1.2.3, got: $VERSION" >&2
+	exit 1
+fi
+
+IDENTITY="${SIGNING_IDENTITY:-Snatch Self-Signed}"
+
+if ! security find-identity -p codesigning | grep -Fq "$IDENTITY"; then
+	echo "No '$IDENTITY' identity in the keychain; run macos/scripts/self-sign.sh once" >&2
 	exit 1
 fi
 
@@ -54,10 +65,10 @@ for nested in \
 	"$SPARKLE/Versions/B/XPCServices/Installer.xpc" \
 	"$SPARKLE/Versions/B/Updater.app" \
 	"$SPARKLE/Versions/B/Autoupdate"; do
-	codesign --force --sign - --timestamp=none "$nested"
+	codesign --force --sign "$IDENTITY" --timestamp=none "$nested"
 done
-codesign --force --sign - --timestamp=none "$SPARKLE"
-codesign --force --sign - --timestamp=none "$APP"
+codesign --force --sign "$IDENTITY" --timestamp=none "$SPARKLE"
+codesign --force --sign "$IDENTITY" --timestamp=none "$APP"
 codesign --verify --deep --strict "$APP"
 
 STAGING=$(mktemp -d)

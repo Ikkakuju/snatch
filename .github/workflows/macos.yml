@@ -19,6 +19,30 @@ jobs:
       - run: swift test
         working-directory: macos
 
+  # Signs a real bundle with a throwaway self-signed identity, so a PR proves
+  # bundle.sh works without the release secrets or a maintainer's keychain.
+  bundle:
+    needs: test
+    if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: macos/scripts/self-sign.sh
+        env:
+          SIGNING_KEYCHAIN: ${{ runner.temp }}/signing.keychain-db
+      - run: macos/scripts/bundle.sh
+      - name: Check the bundle's signature
+        run: |
+          INFO="$(codesign -dvv macos/dist/Snatch.app 2>&1)"
+          printf '%s\n' "$INFO"
+          # The certificate, not a per-build cdhash, is the designated requirement,
+          # so macOS keeps the app's permissions across updates.
+          REQ="$(codesign -d -r- macos/dist/Snatch.app 2>&1)"
+          printf '%s\n' "$REQ"
+          grep -Fxq "Authority=Snatch Self-Signed" <<< "$INFO"
+          grep -Fq 'certificate leaf' <<< "$REQ"
+
   # A `v1.2.3` tag builds Snatch.dmg and publishes it as that release. The asset
   # name carries no version so the website can always link to
   # releases/latest/download/Snatch.dmg.
@@ -34,6 +58,10 @@ jobs:
         with:
           # appcast.sh writes release notes from the commits since the last tag.
           fetch-depth: 0
+      - run: macos/scripts/import-signing-identity.sh
+        env:
+          SIGNING_P12_BASE64: ${{ secrets.SIGNING_P12_BASE64 }}
+          SIGNING_P12_PASSWORD: ${{ secrets.SIGNING_P12_PASSWORD }}
       - run: VERSION="${GITHUB_REF_NAME#v}" macos/scripts/bundle.sh
       - run: macos/scripts/appcast.sh "$GITHUB_REF_NAME"
         env:

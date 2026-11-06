@@ -34,8 +34,8 @@
 	<string>n4QHoK12KJl9p3fbYuCyD2Qu4YR/jS2PTxf8m3l8CuA=</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
-	<!-- Snatch is ad-hoc signed, so let the user approve each install instead of
-	     downloading and applying updates silently. -->
+	<!-- Snatch is self-signed and not notarized, so let the user approve each
+	     install instead of downloading and applying updates silently. -->
 	<key>SUAllowsAutomaticUpdates</key>
 	<false/>
 	<key>NSAppTransportSecurity</key>
