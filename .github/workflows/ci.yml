@@ -1,11 +1,20 @@
 name: CI
 on:
-  pull_request: {}
+  pull_request:
+    # 只改文档的 PR 不占 runner；main 不受影响（push 不过滤）。
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
   push:
     branches: [main]
 
 permissions:
   contents: read
+
+# PR 被新 push 取代就取消；main 的每个提交都要完整跑完。
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   # The website only; the Mac app is checked by macos.yml on a macOS runner.
