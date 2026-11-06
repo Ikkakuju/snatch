@@ -208,51 +208,33 @@ render("macos/AppIcon.png", 1024, 1024) { ctx in
 	ctx.restoreGState()
 }
 
-// The social card: the website's ink with its purple and blue glow, the mark and
-// wordmark, the tagline and what Snatch is.
+// The social card: the site's black canvas, the mark, the tagline and one mono line.
 render("\(web)/og.png", 1200, 630) { ctx in
-	ctx.setFillColor(color(0x0A090F))
+	ctx.setFillColor(color(0x000000))
 	ctx.fill(CGRect(x: 0, y: 0, width: 1200, height: 630))
+	// The hero's limb, out of frame: a violet glow in the bottom-right corner.
 	ctx.drawRadialGradient(
-		gradient([color(0x6D4BFF, 0.5), color(0x6D4BFF, 0)]),
-		startCenter: CGPoint(x: 160, y: 620), startRadius: 0,
-		endCenter: CGPoint(x: 160, y: 620), endRadius: 620, options: []
-	)
-	ctx.drawRadialGradient(
-		gradient([color(0x2F52FF, 0.4), color(0x2F52FF, 0)]),
-		startCenter: CGPoint(x: 1120, y: 40), startRadius: 0,
-		endCenter: CGPoint(x: 1120, y: 40), endRadius: 560, options: []
+		gradient([color(0xA78BFA, 0.28), color(0xA78BFA, 0)]),
+		startCenter: CGPoint(x: 1180, y: 620), startRadius: 0,
+		endCenter: CGPoint(x: 1180, y: 620), endRadius: 660, options: []
 	)
 
-	let outfit = font("outfit-12.woff2", family: "Outfit", size: 112, weight: .heavy)
-	let wordmark = NSMutableAttributedString(
-		string: "snatch", attributes: [.font: outfit, .foregroundColor: NSColor.white, .kern: -3]
-	)
-	wordmark.append(NSAttributedString(
-		string: "videos",
-		attributes: [.font: outfit, .foregroundColor: NSColor(cgColor: color(0x6D4BFF))!, .kern: -3]
-	))
-	let mark: CGFloat = 130
-	let gap: CGFloat = 26
-	let wordSize = wordmark.size()
-	let left = (1200 - mark - gap - wordSize.width) / 2
-	let middle: CGFloat = 393
-	drawMark(ctx, in: markBox(center: CGPoint(x: left + mark / 2, y: middle), side: mark))
-	wordmark.draw(at: CGPoint(x: left + mark + gap, y: middle - wordSize.height / 2))
+	drawMark(ctx, in: markBox(center: CGPoint(x: 600, y: 470), side: 92), shadow: nil)
 
-	func centered(_ text: String, y: CGFloat, size: CGFloat, weight: NSFont.Weight, hex: UInt32) {
+	func centered(_ text: String, y: CGFloat, font: NSFont, hex: UInt32) {
 		let line = NSAttributedString(
 			string: text,
 			attributes: [
-				.font: font("geist-1.woff2", family: "Geist", size: size, weight: weight),
+				.font: font,
 				.foregroundColor: NSColor(cgColor: color(hex))!,
 			]
 		)
 		line.draw(at: CGPoint(x: (1200 - line.size().width) / 2, y: y))
 	}
-	centered("Download any video on your Mac.", y: 220, size: 44, weight: .medium, hex: 0xE4DDFF)
-	centered(
-		"Free  ·  Open source  ·  YouTube, X, TikTok and 1,800+ sites", y: 140, size: 28, weight: .regular,
-		hex: 0x9C97B8
-	)
+	let display = font("geist-1.woff2", family: "Geist", size: 76, weight: .semibold)
+	let mono = font("geist-mono-6.woff2", family: "Geist Mono", size: 22, weight: .medium)
+	centered("Paste a link.", y: 300, font: display, hex: 0xEDEDED)
+	centered("Keep the video.", y: 212, font: display, hex: 0xA78BFA)
+	centered("FREE · OPEN SOURCE · 1,800+ SITES", y: 132, font: mono, hex: 0x8A8A8A)
+	centered("snatchvideos.com", y: 48, font: mono, hex: 0x8A8A8A)
 }

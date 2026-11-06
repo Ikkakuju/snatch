@@ -31,9 +31,13 @@ public struct BrowserContext: Codable, Sendable, Equatable, Hashable {
 public struct EngineOptions: Sendable {
 	public var cookies: CookieBrowser
 	public var browser: BrowserContext?
-	public init(cookies: CookieBrowser, browser: BrowserContext? = nil) {
+	/// The exported jar, or nil when there is none to read. Passed in rather than probed
+	/// from disk so the arguments stay a pure function of the options.
+	public var browserCookies: URL?
+	public init(cookies: CookieBrowser, browser: BrowserContext? = nil, browserCookies: URL? = nil) {
 		self.cookies = cookies
 		self.browser = browser
+		self.browserCookies = browserCookies
 	}
 
 	var common: [String] {
@@ -44,8 +48,13 @@ public struct EngineOptions: Sendable {
 			"--no-warnings",
 		]
 		if let browser {
+			// A resumed job can outlive the jar (Clear Sign-ins, a wiped support folder);
+			// yt-dlp treats a missing --cookies path as fatal, so only pass a real one.
+			if let jar = browserCookies {
+				args += ["--cookies", jar.path]
+			}
 			args += [
-				"--cookies", AppPaths.browserCookies.path, "--referer", browser.referer,
+				"--referer", browser.referer,
 				"--user-agent", BrowserIdentity.userAgent,
 			]
 		} else if let browser = cookies.argument {
@@ -102,23 +111,32 @@ public enum Engine {
 	}
 }
 
-/// `title` as literal output-template text: `%` escaped, no path separators, at most
-/// 150 characters.
+/// `title` as literal output-template text: `%` escaped, no path separators or control
+/// characters (a newline would forge a second `[snatch-file]` line), at most 150 chars.
 func literalTitle(_ title: String) -> String {
-	let clean = title.trimmingCharacters(in: .whitespacesAndNewlines)
+	let stripped = String(
+		title.unicodeScalars.filter { !CharacterSet.controlCharacters.contains($0) }
+	)
+	let clean = stripped.trimmingCharacters(in: .whitespacesAndNewlines)
 		.replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "-")
 	return String((clean.isEmpty ? "video" : clean).prefix(150)).replacingOccurrences(of: "%", with: "%%")
 }
 
 /// `cookies` as a Netscape cookie file, the format `yt-dlp --cookies` reads.
+/// A field with a tab or newline would forge a row for another domain.
+func jarField(_ value: String) -> String {
+	value.replacingOccurrences(of: "\t", with: " ").replacingOccurrences(of: "\n", with: " ")
+		.replacingOccurrences(of: "\r", with: " ")
+}
+
 public func netscapeCookieFile(_ cookies: [HTTPCookie]) -> String {
 	var lines = ["# Netscape HTTP Cookie File"]
 	for cookie in cookies {
-		let domain = (cookie.isHTTPOnly ? "#HttpOnly_" : "") + cookie.domain
+		let domain = (cookie.isHTTPOnly ? "#HttpOnly_" : "") + jarField(cookie.domain)
 		let expires = cookie.expiresDate.map { String(Int($0.timeIntervalSince1970)) } ?? "0"
 		lines.append([
-			domain, cookie.domain.hasPrefix(".") ? "TRUE" : "FALSE", cookie.path,
-			cookie.isSecure ? "TRUE" : "FALSE", expires, cookie.name, cookie.value,
+			domain, cookie.domain.hasPrefix(".") ? "TRUE" : "FALSE", jarField(cookie.path),
+			cookie.isSecure ? "TRUE" : "FALSE", expires, jarField(cookie.name), jarField(cookie.value),
 		].joined(separator: "\t"))
 	}
 	return lines.joined(separator: "\n") + "\n"
@@ -175,7 +193,7 @@ public final class DownloadRun: Sendable {
 						errors.append(line)
 					} else if let progress = parseProgress(line) {
 						continuation.yield(.progress(progress))
-					} else if line.hasPrefix(filePrefix) {
+					} else if line.hasPrefix(filePrefix), file == nil {
 						file = URL(fileURLWithPath: String(line.dropFirst(filePrefix.count)))
 					}
 				}

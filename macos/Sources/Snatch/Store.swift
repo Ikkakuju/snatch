@@ -130,12 +130,13 @@ final class Store {
 		await Tools.updateYtDlpIfDue()
 		updating = false
 		ytDlpVersion = await Tools.ytDlpVersion()
+		await probeDeferredLink()
 		pump()
 	}
 
 	/// A manual yt-dlp update; only between downloads, since it replaces yt-dlp's folder.
 	func checkForUpdate() async {
-		guard !updating, !isDownloading else { return }
+		guard !updating, !isDownloading, !probing else { return }
 		updating = true
 		updateMessage = nil
 		do {
@@ -148,6 +149,7 @@ final class Store {
 			updateMessage = error.localizedDescription
 		}
 		updating = false
+		await probeDeferredLink()
 		pump()
 	}
 
@@ -162,16 +164,20 @@ final class Store {
 			failedComponent = nil
 			if component == .engine {
 				ytDlpVersion = await Tools.ytDlpVersion()
-				if let link = deferredLink {
-					deferredLink = nil
-					Task { await probe(link) }
-				}
+				await probeDeferredLink()
 			}
 			pump()
 		} catch {
 			installError = error.localizedDescription
 			failedComponent = component
 		}
+	}
+
+	/// A link that arrived while yt-dlp was being installed or updated.
+	private func probeDeferredLink() async {
+		guard let link = deferredLink, !updating, installed.contains(.engine) else { return }
+		deferredLink = nil
+		await probe(link)
 	}
 
 	// MARK: Resolve
@@ -187,13 +193,21 @@ final class Store {
 			probeError = String(localized: "Paste a link that starts with http:// or https://.")
 			return
 		}
+		// The daily yt-dlp check replaces the binary; probing through it reads a half-written tree.
+		guard !updating else {
+			deferredLink = url
+			return
+		}
+		guard !probing else { return }
 		probing = true
 		probeError = nil
 		unreadablePage = nil
 		pending = nil
 		defer { probing = false }
 		do {
-			var info = try await Engine.probe(url, options: EngineOptions(cookies: cookies, browser: browser))
+			var info = try await Engine.probe(
+				url, options: EngineOptions(cookies: cookies, browser: browser, browserCookies: liveCookieJar)
+			)
 			if let browser {
 				info.title = browser.title
 				info.thumbnail = info.thumbnail ?? thumbnail
@@ -282,6 +296,22 @@ final class Store {
 		save()
 	}
 
+	/// The exported jar, when it still exists: a resumed job may outlive it.
+	private var liveCookieJar: URL? {
+		FileManager.default.fileExists(atPath: AppPaths.browserCookies.path)
+			? AppPaths.browserCookies : nil
+	}
+
+	/// Browser jobs share one jar; keep it while any of them can still run, then delete it.
+	private func discardBrowserCookiesIfUnused() {
+		let needed = jobs.contains { job in
+			guard job.browser != nil else { return false }
+			if case .done = job.state { return false }
+			return true
+		}
+		if !needed { try? FileManager.default.removeItem(at: AppPaths.browserCookies) }
+	}
+
 	func reveal(_ file: URL) {
 		NSWorkspace.shared.activateFileViewerSelecting([file])
 	}
@@ -320,7 +350,7 @@ final class Store {
 				pageURL: job.pageURL, choice: job.choice, folder: job.folder, partials: job.partials,
 				// ponytail: a resumed browser job reuses the last exported cookies; export
 				// again here if sites start expiring them between pause and resume.
-				options: EngineOptions(cookies: cookies, browser: job.browser)
+				options: EngineOptions(cookies: cookies, browser: job.browser, browserCookies: liveCookieJar)
 			)
 			runs[job.id] = run
 			jobs[index].state = .running
@@ -352,12 +382,16 @@ final class Store {
 		if runs[id] === run {
 			runs[id] = nil
 			save()
+			discardBrowserCookiesIfUnused()
 			pump()
 		}
 	}
 
 	private func save() {
-		try? FileManager.default.createDirectory(at: AppPaths.support, withIntermediateDirectories: true)
+		try? FileManager.default.createDirectory(
+			at: AppPaths.support, withIntermediateDirectories: true,
+			attributes: [.posixPermissions: 0o700]
+		)
 		try? JSONEncoder().encode(jobs).write(to: AppPaths.jobs, options: .atomic)
 	}
 }

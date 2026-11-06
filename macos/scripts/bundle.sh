@@ -14,6 +14,11 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 VERSION="${VERSION:-0.0.0}"
+# The version is interpolated into Info.plist; keep it to digits and dots.
+if ! [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+	echo "VERSION must look like 1.2.3, got: $VERSION" >&2
+	exit 1
+fi
 
 swift build -c release --arch arm64 --product Snatch
 

@@ -40,6 +40,8 @@ data/
 .void/
 .void-wrangler.jsonc
 .cloudflare/
+.wrangler/
+.tanstack/
 
 # Application specific
 uploads/
