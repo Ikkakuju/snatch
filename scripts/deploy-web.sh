@@ -2,8 +2,8 @@
 # Cloudflare Workers Builds deploy command for the SPA Worker.
 #
 # The Workers Builds build command (`bun run build:web`) has already produced
-# packages/web/dist/client. Vite owns the build; Void only uploads the finished
-# static directory as a static-assets Worker.
+# packages/web/dist/client. Vite owns the build; `wrangler deploy` only uploads that
+# directory as a static-assets Worker (packages/web/wrangler.jsonc).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -28,4 +28,4 @@ set -a
 [ -f packages/web/.env.production ] && . packages/web/.env.production
 set +a
 
-bun run --cwd packages/web deploy -- --dir dist/client --spa
+bun run --cwd packages/web deploy
