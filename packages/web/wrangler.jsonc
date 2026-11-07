@@ -1,0 +1,15 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "snatch",
+	"compatibility_date": "2026-10-01",
+	// Vite owns the build; this Worker is the finished static directory. `_headers`
+	// in that directory is applied by Workers static assets.
+	"assets": {
+		"directory": "./dist/client",
+		"not_found_handling": "single-page-application"
+	},
+	// A Custom Domain: Cloudflare creates the DNS record and certificate.
+	"routes": [{ "pattern": "snatchvideos.com", "custom_domain": true }],
+	"workers_dev": false,
+	"preview_urls": false
+}

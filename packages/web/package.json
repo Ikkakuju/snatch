@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build && rm -rf dist/server dist/client/pages.json",
     "preview": "vite preview --config vite.preview.config.ts",
-    "deploy": "void deploy --platform cloudflare",
+    "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -25,6 +25,7 @@
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
     "vite": "^8.3.4",
-    "void": "^1.6.2"
+    "void": "^1.6.2",
+    "wrangler": "^4.156.2"
   }
 }
