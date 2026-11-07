@@ -7,6 +7,20 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Workers Builds runs this for every branch, and every branch deploys to the same
+# Worker (workers_dev and preview_urls are both off). Two builds landing at once
+# supersede each other and the losing one leaves the old version serving traffic,
+# so only main is allowed to publish. A local run has no WORKERS_CI and proceeds.
+if [ "${WORKERS_CI:-}" = "1" ]; then
+	case "${WORKERS_CI_BRANCH:-}" in
+	main) ;;
+	*)
+		echo "Not main (${WORKERS_CI_TYPE:-branch} ${WORKERS_CI_BRANCH:-unknown}); built, not deployed."
+		exit 0
+		;;
+	esac
+fi
+
 # Public Vite values and the Cloudflare identifiers live here; the deploy
 # authenticates with the Workers Builds build token, not a repository secret.
 set -a
