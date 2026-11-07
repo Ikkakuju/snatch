@@ -10,15 +10,16 @@ cd "$(dirname "$0")/.."
 # Workers Builds runs this for every branch, and every branch deploys to the same
 # Worker (workers_dev and preview_urls are both off). Two builds landing at once
 # supersede each other and the losing one leaves the old version serving traffic,
-# so only main is allowed to publish. A local run has no WORKERS_CI and proceeds.
+# so only a commit on main is allowed to publish. A local run has no WORKERS_CI and
+# proceeds. The check is on the commit rather than on WORKERS_CI_BRANCH because a
+# PR build checks out its own head, which is not an ancestor of main either way.
 if [ "${WORKERS_CI:-}" = "1" ]; then
-	case "${WORKERS_CI_BRANCH:-}" in
-	main) ;;
-	*)
-		echo "Not main (${WORKERS_CI_TYPE:-branch} ${WORKERS_CI_BRANCH:-unknown}); built, not deployed."
+	git fetch --quiet origin main || true
+	if ! git merge-base --is-ancestor HEAD origin/main; then
+		echo "Not a main commit (${WORKERS_CI_BRANCH:-unknown}); built, not deployed."
 		exit 0
-		;;
-	esac
+	fi
+	echo "Deploying $(git rev-parse --short HEAD) on main."
 fi
 
 # Public Vite values and the Cloudflare identifiers live here; the deploy
